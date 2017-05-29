@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PhAsEr RpG?</title>
+	<meta charset="utf-8">
+	<script src="phaser.min-2.7.7.js"></script>
+	<script src="gameskills.js"></script>
+</head>
+<body>
+	<script name="ver">//-----------------------------------------------------
+		var ver = '0.21';
+	</script>
+
+	<script name="init">//SAVE //man=p1,left   foe=p2,right
+		var manlv = 1;
+		var manexp = 0;
+		var foelv = 1;
+		var foeexp = 0;
+
+		var hpfontformat = {font: 'Hall Fetica', fontSize: '25px'} ;
+		var manmaxhp = Math.floor(Math.random() * 450 + 200);
+		var manhp = manmaxhp;
+		var foemaxhp = Math.floor(Math.random() * 800 + 20);
+		var foehp = foemaxhp;
+
+		var mpfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'blue'};
+		var manmaxmp = 1000 - manmaxhp;
+		var manmp = manmaxmp;
+		var foemaxmp = 1000 - foemaxhp;
+		var foemp = foemaxmp;
+
+		var sklfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'purple'};
+		var mansskill = 1;
+		var foesskill = 0;
+		var mancanskill = [0, 0, 0];
+		var foecanskill = [0, 0, 0];
+		var mannskill = [0, 0];
+		var foenskill = 0;
+	</script>
+
+
+	<script name="game">
+		var width = 650;
+		var height = 450;
+		var game = new Phaser.Game(width, height, Phaser.CANVAS, 'game');
+		game.States = {};
+
+		game.States.boot = function(){
+			this.preload = function(){};
+			this.create = function(){
+				game.state.start('preload')
+			};
+		}
+
+		game.States.preload = function(){
+			this.preload = function(){
+    			game.load.spritesheet('man','asset/bird.png',34,24,3); 
+    			game.load.spritesheet('foe','asset/bird2.png',34,24,3);
+    			game.load.spritesheet('manleft','asset/birdl',34,24,3);
+    			game.load.spritesheet('foeleft','asset/bird2l',34,24,3); 
+    			game.load.spritesheet('play-icon','asset/play-icon.png');
+    			var progressText = game.add.text(game.world.centerX, game.world.centerY, '0%', {
+   					fontSize: '60px',
+    				fill: '#ffffff',
+    				font: 'Hall Fetica'
+				});
+				progressText.anchor.setTo(0.5, 0.5); 
+				// 监听加载完一个文件的事件
+				game.load.onFileComplete.add(function(progress) {
+    				progressText.text = progress + '%';
+				});
+		     };
+		     this.create = function(){
+		     	game.state.start('menu');
+		     }
+		}
+
+
+	
+		game.States.menu = function(){
+			this.create = function(){
+				game.stage.backgroundColor = '#ffe4e1';
+				var btn = game.add.button(300,170,'play-icon',function(){
+					game.state.start('play');
+				});
+				btn.anchor.setTo(0.5,0);
+				game.add.text(0, 0, 'V.' + ver ,{fontSize:'14px', font:'Hall Fetica'});
+			}
+
+			this.update = function(){
+				enter = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+				if(enter.isDown){game.state.start('play');}
+			}
+		};
+
+
+
+		game.States.play = function(){
+			this.create = function(){
+				//printhp
+				this.printmanhp = game.add.text(22, 20, manhp, hpfontformat);
+				this.printmanof = game.add.text(70, 20, '/', hpfontformat);
+				this.printmanmaxhp = game.add.text(90, 20, manmaxhp, hpfontformat);
+				this.printfoehp = game.add.text(522, 20, foehp, hpfontformat);
+				this.printfoeof = game.add.text(570, 20, '/', hpfontformat);
+				this.printfoemaxhp = game.add.text(590, 20, foemaxhp, hpfontformat);
+
+				//printmp
+				this.printmanmp = game.add.text(22, 50, manmp, mpfontformat);
+				this.printmanofm = game.add.text(55, 50, '/', mpfontformat);
+				this.printmanmaxmp = game.add.text(70, 50, manmaxmp, mpfontformat);
+				this.printfoemp = game.add.text(542, 50, foemp, mpfontformat);
+				this.printfoeofm = game.add.text(575, 50, '/', mpfontformat);
+				this.printfoemaxmp = game.add.text(590, 50, foemaxmp, mpfontformat);
+
+				//print skill
+				this.printmanskl = game.add.text(22, 80, skills[mansskill], sklfontformat);
+
+				//graph & gravity
+				this.man = game.add.sprite(50, 150, 'man');
+    			this.man.animations.add('fly'); this.man.animations.play('fly',12,true);
+				game.physics.arcade.enable(this.man, Phaser.Physics.P2);
+				this.man.body.collideWorldBounds = true;
+				this.man.body.gravity.y = 490;
+				this.foe = game.add.sprite(550, 150, 'foe');
+    			this.foe.animations.add('fle'); this.foe.animations.play('fle',12,true);
+				game.physics.arcade.enable(this.foe, Phaser.Physics.P2);
+				this.foe.body.collideWorldBounds = true;
+				this.foe.body.gravity.y = 490;
+
+				//input
+				cursors = game.input.keyboard.createCursorKeys();
+  			    spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+  			    manjump = game.input.keyboard.addKey(82);//R up
+  			    manleft = game.input.keyboard.addKey(68);//D left
+  			    manright = game.input.keyboard.addKey(71);//F right
+  			    manatk = game.input.keyboard.addKey(90);//Z attack!
+  			    this.man.inputEnabled = true;
+  				//this.man.input.enableDrag(true);
+			}
+
+			this.update = function(){
+				this.man.body.velocity.x = 0;
+				this.foe.body.velocity.x = 0;
+				//onfloor
+				if(this.man.body.onFloor()==true){manhp-=2}
+				if(this.foe.body.onFloor()==true){foehp-=2}
+				//gg
+				if(manhp > 0){this.printmanhp.text = manhp;}
+					else{this.foewin();}
+				if(foehp > 0){this.printfoehp.text = foehp;}
+					else{this.manwin();}
+				//move p1 man
+				if (manleft.isDown){this.man.body.velocity.x = -250; this.man.rotation=180;}
+   					else if(manright.isDown){this.man.body.velocity.x = 250;}
+   			    if (manjump.isDown) {this.man.body.velocity.y = -300;}	
+
+				//move p2(foe)
+				if (cursors.left.isDown){this.foe.body.velocity.x = -250;}
+   					else if(cursors.right.isDown){this.foe.body.velocity.x = 250;}
+   			    if (cursors.up.isDown) {this.foe.body.velocity.y = -300;}
+   			    	else if(cursors.down.isDown){this.foe.body.velocity.y = 700;}
+
+   			    //special attack!!
+
+
+			}
+
+
+			this.foewin = function(){
+				manhp = 0;
+				this.printmanhp.text = 0;
+			}
+
+			this.manwin = function(){
+				foehp = 0;
+				this.printfoehp.text = 0;
+			}
+		}
+
+		game.state.add('boot',game.States.boot);
+		game.state.add('preload',game.States.preload);
+		game.state.add('menu',game.States.menu);
+		game.state.add('play',game.States.play);
+		game.state.start('boot');
+	</script>
+
+
+	<h2>Hand-made phaserG???</h2>
+
+	<script name="data">
+		function cout(){
+			document.getElementById("save").innerHTML = 
+			manlv + '&j&c&' + manexp + '&j&c&' + foelv + '&j&c&' + foeexp + '&j&c&' + manmaxhp + '&j&c&' + manhp + '&j&c&' + foemaxhp + '&j&c&' + foehp + '&j&c&' + manmaxmp + '&j&c&' + foemaxmp ;
+		}
+
+		function filecout(){
+			var fs = require('fs');
+			var data = fs.readFileSync(process.argv[2]);
+			console.log(data.toString());
+			fs.writeFileSync(process.argv[3], data);
+		}
+
+		function cin(){
+
+		}
+
+		function filecin(){
+			var fs = require('fs'); // 引用檔案物件
+			var data = fs.readFileSync(process.argv[2], "utf8"); // 讀取檔案
+			console.log(data); // 顯示在螢幕上
+		}
+	</script>
+
+
+
+	<button type="button" onclick="cout()" style="position: absolute;top: 530px;">EXPORT SAVEDATA</button>
+	<button type="button" onclick="cin()" style="position: absolute;top: 530px;left: 500px">IMPORT SAVEDATA</button>
+	<textarea id="save" style="position: absolute; top:560px; width: 650px;"></textarea>
+</body>
+</html>
+
+
+<!--UPDATE LIST
+皺褶世界
+生(summon)小鳥(?)
+彈幕攻擊
+夥伴模式
+耗MP攻擊/集氣
+頭方向
+碰撞
+增益泡泡
+子彈
+防護罩
+必殺技MP
+增減益效果
+合作打BOSS (?)
+-->
