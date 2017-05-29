@@ -8,7 +8,8 @@
 </head>
 <body>
 	<script name="ver">//-----------------------------------------------------
-		var ver = '0.21';
+		var ver = '0.3';
+		var udt = '0529: finally head direction!'
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
@@ -42,6 +43,7 @@
 	<script name="game">
 		var width = 650;
 		var height = 450;
+		var gamestarted = false;
 		var game = new Phaser.Game(width, height, Phaser.CANVAS, 'game');
 		game.States = {};
 
@@ -54,10 +56,8 @@
 
 		game.States.preload = function(){
 			this.preload = function(){
-    			game.load.spritesheet('man','asset/bird.png',34,24,3); 
-    			game.load.spritesheet('foe','asset/bird2.png',34,24,3);
-    			game.load.spritesheet('manleft','asset/birdl',34,24,3);
-    			game.load.spritesheet('foeleft','asset/bird2l',34,24,3); 
+    			game.load.spritesheet('man','asset/bird1.png',34,24,6); 
+    			game.load.spritesheet('foe','asset/bird2b.png',34,24,6);
     			game.load.spritesheet('play-icon','asset/play-icon.png');
     			var progressText = game.add.text(game.world.centerX, game.world.centerY, '0%', {
    					fontSize: '60px',
@@ -84,12 +84,14 @@
 					game.state.start('play');
 				});
 				btn.anchor.setTo(0.5,0);
-				game.add.text(0, 0, 'V.' + ver ,{fontSize:'14px', font:'Hall Fetica'});
+
+				game.add.text(0, 0, 'V.' + ver ,{fontSize:'16px', font:'Hall Fetica'});
+				game.add.text(0,16, udt, {fontSize:'14px', font:'Hall Fetica'});
 			}
 
 			this.update = function(){
 				enter = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-				if(enter.isDown){game.state.start('play');}
+				if(enter.isDown){game.state.start('play'); }
 			}
 		};
 
@@ -97,6 +99,7 @@
 
 		game.States.play = function(){
 			this.create = function(){
+				gamestarted = true;
 				//printhp
 				this.printmanhp = game.add.text(22, 20, manhp, hpfontformat);
 				this.printmanof = game.add.text(70, 20, '/', hpfontformat);
@@ -118,12 +121,17 @@
 
 				//graph & gravity
 				this.man = game.add.sprite(50, 150, 'man');
-    			this.man.animations.add('fly'); this.man.animations.play('fly',12,true);
+				this.man.animations.add('goright', [0, 1, 2], 10, true);
+				this.man.animations.add('goleft',[3, 4, 5], 10, true);
+    		    this.man.animations.play('goright');
 				game.physics.arcade.enable(this.man, Phaser.Physics.P2);
 				this.man.body.collideWorldBounds = true;
 				this.man.body.gravity.y = 490;
+
 				this.foe = game.add.sprite(550, 150, 'foe');
-    			this.foe.animations.add('fle'); this.foe.animations.play('fle',12,true);
+    			this.foe.animations.add('fgoright', [0, 1, 2], 10, true);
+				this.foe.animations.add('fgoleft',[3, 4, 5], 10, true);
+    		    this.foe.animations.play('fgoleft');
 				game.physics.arcade.enable(this.foe, Phaser.Physics.P2);
 				this.foe.body.collideWorldBounds = true;
 				this.foe.body.gravity.y = 490;
@@ -132,6 +140,7 @@
 				cursors = game.input.keyboard.createCursorKeys();
   			    spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   			    manjump = game.input.keyboard.addKey(82);//R up
+  			    mandown = game.input.keyboard.addKey(70);//F down!
   			    manleft = game.input.keyboard.addKey(68);//D left
   			    manright = game.input.keyboard.addKey(71);//F right
   			    manatk = game.input.keyboard.addKey(90);//Z attack!
@@ -151,14 +160,15 @@
 				if(foehp > 0){this.printfoehp.text = foehp;}
 					else{this.manwin();}
 				//move p1 man
-				if (manleft.isDown){this.man.body.velocity.x = -250; this.man.rotation=180;}
-   					else if(manright.isDown){this.man.body.velocity.x = 250;}
+				if (manleft.isDown){this.man.body.velocity.x = -250; this.man.animations.play('goleft'); }
+   					else if(manright.isDown){this.man.body.velocity.x = 250; this.man.animations.play('goright');}
    			    if (manjump.isDown) {this.man.body.velocity.y = -300;}	
+   			    	else if(mandown.isDown){this.man.body.velocity.y = 700;}
 
 				//move p2(foe)
-				if (cursors.left.isDown){this.foe.body.velocity.x = -250;}
-   					else if(cursors.right.isDown){this.foe.body.velocity.x = 250;}
-   			    if (cursors.up.isDown) {this.foe.body.velocity.y = -300;}
+				if (cursors.left.isDown){this.foe.body.velocity.x = -250; this.foe.animations.play('fgoleft');}
+   					else if(cursors.right.isDown){this.foe.body.velocity.x = 250; this.foe.animations.play('fgoright');}
+   			    if (cursors.up.isDown) {this.foe.body.velocity.y = -300; }
    			    	else if(cursors.down.isDown){this.foe.body.velocity.y = 700;}
 
    			    //special attack!!
@@ -186,12 +196,29 @@
 	</script>
 
 
+<!-- =============================================================================================================================================== -->
+
 	<h2>Hand-made phaserG???</h2>
 
 	<script name="data">
 		function cout(){
-			document.getElementById("save").innerHTML = 
-			manlv + '&j&c&' + manexp + '&j&c&' + foelv + '&j&c&' + foeexp + '&j&c&' + manmaxhp + '&j&c&' + manhp + '&j&c&' + foemaxhp + '&j&c&' + foehp + '&j&c&' + manmaxmp + '&j&c&' + foemaxmp ;
+			if(gamestarted == true){
+				document.getElementById("save").innerHTML = 
+				manlv + '&j&c&' + 
+				manexp + '&j&c&' + 
+				foelv + '&j&c&' + 
+				foeexp + '&j&c&' + 
+				manmaxhp + '&j&c&' + 
+				manhp + '&j&c&' + 
+				foemaxhp + '&j&c&' +
+				foehp + '&j&c&' +
+			    manmaxmp + '&j&c&' + 
+				foemaxmp ;
+			}
+			else{
+				console.log('cout before play')
+				alert('No savedata saved');
+			}
 		}
 
 		function filecout(){
@@ -202,19 +229,27 @@
 		}
 
 		function cin(){
-
+			console.error('cin');
+			alert('上傳存檔功能暫時不能使用，敬請期待!')
 		}
 
 		function filecin(){
 			var fs = require('fs'); // 引用檔案物件
 			var data = fs.readFileSync(process.argv[2], "utf8"); // 讀取檔案
-			console.log(data); // 顯示在螢幕上
+			console.log(data); 
 		}
+
+		function fullscreen(){
+			game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+			game.scale.startFullScreen();
+		}
+
 	</script>
 
 
 
 	<button type="button" onclick="cout()" style="position: absolute;top: 530px;">EXPORT SAVEDATA</button>
+	<button type="button" onclick="fullscreen()" style="position: absolute; top: 530px; left: 250px">GO FULLSCREEN!</button>
 	<button type="button" onclick="cin()" style="position: absolute;top: 530px;left: 500px">IMPORT SAVEDATA</button>
 	<textarea id="save" style="position: absolute; top:560px; width: 650px;"></textarea>
 </body>
