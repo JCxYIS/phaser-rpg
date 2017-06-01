@@ -8,8 +8,8 @@
 </head>
 <body>
 	<script name="ver">//-----------------------------------------------------
-		var ver = '0.4';
-		var udt = "0601: bullet! Next time it'd be the formal ver"
+		var ver = '0.5';
+		var udt = "0601: bullet! with arcade!"
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
@@ -176,7 +176,7 @@
   			     this.weaponm.bulletAngleVariance = 3;
   			     //  Tell the Weapon to track the 'player' Sprite, offset by 14px horizontally, 0 vertically
   			     this.weaponm.trackSprite(this.man, 14, 0);
-  			     game.physics.arcade.enable(this.weaponm, Phaser.Physics.P2);
+  			   //  game.physics.arcade.enable(this.weaponm, Phaser.Physics.P2);
   				
   			     this.weaponf = game.add.weapon(30, 'bullet2');
   			     this.weaponf.fireAngle = 180;
@@ -193,7 +193,8 @@
 				this.man.body.velocity.x = 0;
 				this.foe.body.velocity.x = 0;
 				game.physics.arcade.collide(this.man, this.foe, this.mfcrash);
-				game.physics.arcade.collide(this.weaponm, this.foe, this.foehitweaponm);
+				game.physics.arcade.overlap(this.weaponm.bullets, this.foe, this.foehitweaponm);
+				game.physics.arcade.overlap(this.weaponf.bullets, this.man, this.manhitweaponf);
 
 				//onfloor
 				if(this.man.body.onFloor()==true){manhp-=0.5}
@@ -220,8 +221,8 @@
    			    	else if(cursors.down.isDown){this.foe.body.velocity.y = 700;}
 
    			    //attack!!
-   			    if(manatk.isDown && manmp>0){this.weaponm.fire(); manmp-=0.5;}
-   			    if(enter.isDown && foemp>0){this.weaponf.fire(); foemp-=0.5;}
+   			    if(manatk.isDown && manmp>0){this.weaponm.fire(); manmp-=0.25;}
+   			    if(enter.isDown && foemp>0){this.weaponf.fire(); foemp-=0.25;}
 
    			    //special attack!!
 
@@ -233,9 +234,11 @@
 			}
 
 			this.foehitweaponm = function(){
-				foehp-=20;
-				alert(',');
-				this.weaponm.destroy();
+				foehp-=6;
+			}
+
+			this.manhitweaponf = function(){
+				manhp-=6;
 			}
 
 			this.foewin = function(){
@@ -315,20 +318,3 @@
 	<textarea id="save" style="position: absolute; top:560px; width: 650px;"></textarea>
 </body>
 </html>
-
-
-<!--UPDATE LIST
-皺褶世界
-生(summon)小鳥(?)
-彈幕攻擊
-夥伴模式
-耗MP攻擊/集氣
-頭方向
-碰撞
-增益泡泡
-子彈
-防護罩
-必殺技MP
-增減益效果
-合作打BOSS (?)
--->
