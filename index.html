@@ -8,8 +8,8 @@
 </head>
 <body>
 	<script name="ver">//-----------------------------------------------------
-		var ver = '0.5';
-		var udt = "0601: bullet! with arcade!"
+		var ver = '0.51';
+		var udt = "0601: bullet! with arcade!\n0601-2212 added:bullet bug fixed"
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
@@ -65,8 +65,8 @@
     			game.load.spritesheet('man','asset/bird1.png',34,24,6); 
     			game.load.spritesheet('foe','asset/bird2b.png',34,24,6);
     			game.load.spritesheet('play-icon','asset/play-icon.png');
-    			game.load.image('bullet','asset/bullet');
-    			game.load.image('bullet2','asset/bullet2');
+    			game.load.image('bullet','asset/bullet.png');
+    			game.load.image('bullet2','asset/bullet2.png');
     			var progressText = game.add.text(game.world.centerX, game.world.centerY, '0%', {
    					fontSize: '60px',
     				fill: '#ffffff',
