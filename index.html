@@ -4,57 +4,76 @@
 	<title>PhAsEr RpG?</title>
 	<meta charset="utf-8">
 	<script src="phaser.min-2.7.7.js"></script>
-	<script src="gameskills.js"></script>
+	<!-- <script src="gameskills.js"></script> -->
+    <style type="text/css">
+		@font-face  {
+  			font-family: 'Hall Fetica';
+  			  src: 
+  			  	local('Hall Fetica'),
+  			    url('https://jcxyis.github.io/Z_RESOURCE/fonts/Hall%20Fetica.ttf');
+		}
+	</style>
 </head>
-<body>
+
+<body style="font-family: 'Hall Fetica'">
 	<script name="ver">//-----------------------------------------------------
-		var ver = '1.0';
-		var udt = "0602:ALPHAAAAAAAAAAAAAAAAAAAAAAA"
+		var ver = '1.3';
+		var udt = "0608b: cure"
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
-	
-		var manname = 'p1';
-		var foename = 'p2';
-		var manlv = 1;
-		var manexp = 0;
-		var foelv = 1;
-		var foeexp = 0;
 
 		var hpfontformat = {font: 'Hall Fetica', fontSize: '25px'} ;
 		var mpfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'blue'};
 		var sklfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'purple'};
 
-		var mansskill = 0;
-		var foesskill = 0;
-
 		var cancontrol = true;
+		var floorpain = 0.19;
 
-		//style 1=balance 2=sniper 3=machinegun
-		var manstyle = 1;
-		var foestyle = 1;
-		var manatk = 5;
-		var foeatk = 5;
-		var manmaxhp = 500;
-		var manhp = manmaxhp;
-		var foemaxhp = 500;
-		var foehp = foemaxhp;
-		var manshootspd = 400;
-		var foeshootspd = 400;
-		var mandef = 0;
-		var foedef = 0;
-		var manmaxmp = 500;
-		var manmp = manmaxmp;
-		var foemaxmp = 500;
-		var foemp = foemaxmp;
-	
+
+		//personalize stuff
+		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foem,foehpcure,manshootspd,foeshootspd,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill; 
+
+		function init(){
+			manname = 'p1';
+			foename = 'p2';
+			manlv = 1;
+			manexp = 0;
+			foelv = 1;
+			foeexp = 0;
+			manstyle = 1;
+			foestyle = 1;
+			manatk = 5;
+			foeatk = 5;
+			manmaxhp = 500;
+			manhp = manmaxhp;
+			manhpcure = 200;
+			foemaxhp = 500;
+			foehp = foemaxhp;
+			foehpcure = 200;
+			manshootspd = 400;
+			foeshootspd = 400;
+			mandef = 0;
+			foedef = 0;
+			manmaxmp = 500;
+			manmp = manmaxmp / 2;
+			manmpcure = 200;
+			foemaxmp = 500;
+			foemp = foemaxmp / 2;
+			foempcure = 200;
+			mansskill = 0;
+			foesskill = 0; 
+		}
+
+	init();
+
 	</script>
 
 	<script name="game">
 		var width = 650;
 		var height = 450;
 		var gamestarted = false;
-		var game = new Phaser.Game(width, height, Phaser.CANVAS, 'game');
+		var game = new Phaser.Game(width, height, Phaser.auto, 'game');
 		game.States = {};
 
 		game.States.boot = function(){
@@ -71,14 +90,14 @@
     			game.load.spritesheet('play-icon','asset/play-icon.png');
     			game.load.image('bullet','asset/bullet.png');
     			game.load.image('bullet2','asset/bullet2.png');
-    			game.load.image('ggbg','asset/ggbg.png')
+    			game.load.image('ggbg','asset/ggbg.png');
+
     			var progressText = game.add.text(game.world.centerX, game.world.centerY, '0%', {
    					fontSize: '60px',
     				fill: '#ffffff',
     				font: 'Hall Fetica'
 				});
-				progressText.anchor.setTo(0.5, 0.5); 
-				// 监听加载完一个文件的事件
+				progressText.anchor.setTo(0.5, 0); 
 				game.load.onFileComplete.add(function(progress) {
     				progressText.text = progress + '%';
 				});
@@ -93,9 +112,7 @@
 		game.States.menu = function(){
 			this.create = function(){
 				game.stage.backgroundColor = '#ffe4e1';
-				var btn = game.add.button(300,170,'play-icon',function(){
-					game.state.start('play');
-				});
+				var btn = game.add.button(300,170,'play-icon',function(){game.state.start('play');});
 				btn.anchor.setTo(0.5,0);
 
 				game.add.text(0, 0, 'V.' + ver ,{fontSize:'16px', font:'Hall Fetica'});
@@ -106,7 +123,7 @@
 				enter = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 				if(enter.isDown){game.state.start('play'); }
 			}
-		};
+		}
 
 
 
@@ -165,21 +182,21 @@
 
   				//skills
 
-  				 //  Creates 30 bullets, using the 'bullet' graphic
+  				 //  Creates 30 bullets
   			     this.weaponm = game.add.weapon(30, 'bullet');
   			     //weapon's angle
   			     this.weaponm.fireAngle = 0;
   			     //  The bullet will be automatically killed when it leaves the world bounds
   			     this.weaponm.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-  			     //  Because our bullet is drawn facing up, we need to offset its rotation:
+  			     //  graph rotation:
   			     this.weaponm.bulletAngleOffset = 0;
-  			     //  The speed at which the bullet is fired
+  			     //  The speed
   			     this.weaponm.bulletSpeed = 800;
-  			     //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
+  			     //  Speed-up the rate of fire
   			     this.weaponm.fireRate = 200;
-  			     //  Add a variance to the bullet angle by +- this value
+  			     //   variance
   			     this.weaponm.bulletAngleVariance = 3;
-  			     //  Tell the Weapon to track the 'player' Sprite, offset by 14px horizontally, 0 vertically
+  			     //   track the player, offset  14px horizontally, 0 vertically
   			     this.weaponm.trackSprite(this.man, 14, 15);
   			   //  game.physics.arcade.enable(this.weaponm, Phaser.Physics.P2);
   				
@@ -202,14 +219,22 @@
 				game.physics.arcade.overlap(this.weaponf.bullets, this.man, this.manhitweaponf);
 
 				//onfloor
-				if(this.man.body.onFloor()==true){manhp-=0.5}
-				if(this.foe.body.onFloor()==true){foehp-=0.5}
+				if(this.man.body.onFloor()==true){manhp -= floorpain;}
+				if(this.foe.body.onFloor()==true){foehp -= floorpain;}
 
 				//gg and print
-				if(manhp > 0){this.printmanhp.text = Math.floor(manhp);}
-					else{this.foewin();}
-				if(foehp > 0){this.printfoehp.text = Math.floor(foehp);}
-					else{this.manwin();}
+				if(manhp<0){manhp = 0;}
+			    if(foehp<0){foehp = 0;}
+
+			    this.printmanhp.text = Math.floor(manhp);
+			    this.printfoehp.text = Math.floor(foehp);
+				if(manhp > 0){}
+					else if(foehp > 0 && manhp == 0){this.foewin();}
+
+				if(foehp > 0){}
+					else if(manhp > 0 && foehp == 0){this.manwin();}
+					else if(manhp == 0 && foehp == 0){this.suddendeath();}
+
 				this.printmanmp.text = Math.floor(manmp);
 				this.printfoemp.text = Math.floor(foemp);
 
@@ -239,9 +264,28 @@
    			    if (cursors.up.isDown) {this.foe.body.velocity.y = -300; }
    			    	else if(cursors.down.isDown){this.foe.body.velocity.y = 500;}
 
+   			    //mp+hp regain
+   			    if(manhp < manmaxhp){
+   			    	manhp += manhpcure / 10000;
+   			    }
+   			    if(foehp < foemaxhp){
+   			      	foehp += foehpcure / 10000;
+   			    }
+
+
+   			    if(manmp < manmaxmp){
+   			    	manmp += manmpcure / 10000;
+   			    }
+   			    if(foemp < foemaxmp){
+   			    	foemp += foempcure / 10000;
+   			    }
+
+
    			    //attack!!
-   			    if(manatk.isDown && manmp>0){this.weaponm.fire(); manmp-=0.3;}
-   			    if(enter.isDown && foemp>0){this.weaponf.fire(); foemp-=0.3;}
+   			    if(manatk.isDown && manmp>0){this.weaponm.fire(); manmp-=0.3; manmpregain = 0;}
+   			    	else if(manmp < 0){manmp = 0;}
+   			    if(enter.isDown && foemp>0){this.weaponf.fire(); foemp-=0.3; foempregain = 0;}
+   			    	else if(foemp < 0){foemp = 0;}
 
    			    //special attack!!
 
@@ -272,18 +316,43 @@
 				this.ggbox(manname);
 			}
 
+			this.suddendeath = function(){
+				manhp = 1;
+				foehp = 1;
+				manmp = 1;
+				foemp = 1;
+
+				var sdthing = "Wow! You guys are on fire!\n Now, let's start the final face off\n\nClick to rush!"
+				game.add.image(0,0,'ggbg');
+				sdtxt = game.add.text(325, 50, 'SUDDEN DEATH', {font: 'Hall Fetica', fontSize: '55px', fill: 'white'});
+				sdtxt.anchor.setTo(0.5,0.5);
+				
+				clicksd = game.add.text(325, 225, sdthing , {font: 'Hall Fetica', fontSize: '16px', fill: 'white'});
+				clicksd.anchor.setTo(0.5,0.5);
+
+				game.paused = true;
+				game.input.onDown.add(unpause, self);
+
+				function unpause(event){
+					game.paused = false;
+					game.state.start('play');
+				}
+
+			}
+
 			this.ggbox = function(winner){
 				game.add.image(0,0,'ggbg');
 				winnertxt = game.add.text(325, 50, winner + ' WON!', {font: 'Hall Fetica', fontSize: '55px', fill: 'white'});
 				winnertxt.anchor.setTo(0.5,0.5);
+				clickgg = game.add.text(325, 420, "Click to continue...", {font: 'Hall Fetica', fontSize: '16px', fill: 'white'});
+				clickgg.anchor.setTo(0.5,0.5);
+
 				game.paused = true;
 				game.input.onDown.add(unpause, self);
+
 				function unpause(event){
 					game.paused = false;
-					manhp = 500;
-					foehp = 500;
-					manmp = 500;
-					foemp = 500;
+					init();
 					game.state.start('menu');
 				}
 			}
@@ -300,22 +369,22 @@
 
 <!-- =============================================================================================================================================== -->
 
-	<h2>Hand-made phaserG???</h2>
+	<h2>接西.io 糞game</h2>
 
 	<script name="data">
 		function cout(){
 			if(gamestarted == true){
 				document.getElementById("save").innerHTML = 
-				manlv + '&j&c&' + 
-				manexp + '&j&c&' + 
-				foelv + '&j&c&' + 
-				foeexp + '&j&c&' + 
-				manmaxhp + '&j&c&' + 
-				manhp + '&j&c&' + 
-				foemaxhp + '&j&c&' +
-				foehp + '&j&c&' +
-			    manmaxmp + '&j&c&' + 
-				foemaxmp ;
+					manlv + '&j&c&' + 
+					manexp + '&j&c&' + 
+					foelv + '&j&c&' + 
+					foeexp + '&j&c&' + 
+					manmaxhp + '&j&c&' + 
+					manhp + '&j&c&' + 
+					foemaxhp + '&j&c&' +
+					foehp + '&j&c&' +
+			    	manmaxmp + '&j&c&' + 
+					foemaxmp ;
 			}
 			else{
 				console.log('cout before play')
@@ -323,25 +392,22 @@
 			}
 		}
 
-		function filecout(){
-			var fs = require('fs');
-			var data = fs.readFileSync(process.argv[2]);
-			console.log(data.toString());
-			fs.writeFileSync(process.argv[3], data);
-		}
 
 		function cin(){
 			console.log('cin');
 			alert('上傳存檔功能暫時不能使用，敬請期待!')
 		}
 
-		function filecin(){
-			var fs = require('fs'); // 引用檔案物件
-			var data = fs.readFileSync(process.argv[2], "utf8"); // 讀取檔案
-			console.log(data); 
+
+		function show_personalize(){
+			$('#personalize').fadeIn(300);
 		}
 
-		function fullscreen(){
+		function hide_personalize(){
+			$('#personalize').fadeOut(300);
+		}
+
+		function fullscreen(){//yee
 			game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
 			game.scale.startFullScreen();
 		}
@@ -350,9 +416,18 @@
 
 
 
-	<button type="button" onclick="cout()" style="position: absolute;top: 530px;">EXPORT SAVEDATA</button>
-	<button type="button" onclick="fullscreen()" style="position: absolute; top: 530px; left: 250px">GO FULLSCREEN!</button>
-	<button type="button" onclick="cin()" style="position: absolute;top: 530px;left: 500px">IMPORT SAVEDATA</button>
-	<textarea id="save" style="position: absolute; top:560px; width: 650px;"></textarea>
+
+	<button type="button" onclick="fullscreen()" style="position: absolute; top: 525px; left: 250px; font-size: 20px;">GO FULLSCREEN!</button>
+	<button type="button" onclick="show_personalize()" style="position: absolute; top: 525px; left: 10px; font-size: 16px">SAVEDATA</button>
+	
+
+
+	<div id="personalize" style="background: rgba(102,255,102,0.9); z-index: 87;position: absolute; top: 0; left: 0; height: 100%; width: 100%; display: none;">
+		<div id="psl_bar" style="position: absolute;left: 47%; height: 100%; top:0; background: black;">|</div>
+
+
+		<button type="button" onclick="hide_personalize()" style="position: absolute; top: 530px; left: 42.5%; font-size: 20px">I'm Ready!</button>
+	</div>	
 </body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
 </html>
