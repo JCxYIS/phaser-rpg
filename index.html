@@ -17,8 +17,8 @@
 
 <body style="font-family: 'Hall Fetica'">
 	<script name="ver">//-----------------------------------------------------
-		var ver = '1.4';
-		var udt = "0612: savedata->name"
+		var ver = '1.5';
+		var udt = "0612: savedata,status"
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
@@ -32,7 +32,7 @@
 
 
 		//personalize stuff
-		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foem,foehpcure,manshootspd,foeshootspd,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill; 
+		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foem,foehpcure,manshootspd,foeshootspd,manshootvariance,manshootrate,foeshootrate ,foeshootvariance ,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill; 
 		function init(){
 			manname = 'p1';
 			foename = 'p2';
@@ -42,16 +42,20 @@
 			foeexp = 0;
 			manstyle = "Standard";
 			foestyle = "Standard";			
-			manatk = 5;
-			foeatk = 5;
+			manatk = 500;
+			foeatk = 500;
 			manmaxhp = 500;
 			manhpcure = 200;
 			foemaxhp = 500;
 			foehpcure = 200;
 			manshootspd = 400;
 			foeshootspd = 400;
-			mandef = 0;
-			foedef = 0;
+			manshootrate = 200;
+			foeshootrate = 200;
+			manshootvariance = 3;
+			foeshootvariance = 3;
+			mandef = 100;
+			foedef = 100;
 			manmaxmp = 500;
 			manmpcure = 200;
 			foemaxmp = 500;
@@ -176,7 +180,7 @@
   			    mandown = game.input.keyboard.addKey(70);//F down!
   			    manleft = game.input.keyboard.addKey(68);//D left
   			    manright = game.input.keyboard.addKey(71);//F right
-  			    manatk = game.input.keyboard.addKey(90);//Z attack!
+  			    manatkkey = game.input.keyboard.addKey(90);//Z attack!
   			    esc = game.input.keyboard.addKey(27);//Z attack!
   			    this.man.inputEnabled = true;
 
@@ -193,11 +197,11 @@
   			     //  graph rotation:
   			     this.weaponm.bulletAngleOffset = 0;
   			     //  speed
-  			     this.weaponm.bulletSpeed = 800;
+  			     this.weaponm.bulletSpeed = manshootspd;
   			     //   rate of fire
-  			     this.weaponm.fireRate = 200;
+  			     this.weaponm.fireRate = manshootrate;
   			     //   不準度
-  			     this.weaponm.bulletAngleVariance = 3;
+  			     this.weaponm.bulletAngleVariance = manshootvariance;
   			     //   track the player, offset  horizontally, vertically
   			     this.weaponm.trackSprite(this.man, 14, 15);
   			   //  game.physics.arcade.enable(this.weaponm, Phaser.Physics.P2);
@@ -206,9 +210,9 @@
   			     this.weaponf.fireAngle = 180;
   			     this.weaponf.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
   			     this.weaponf.bulletAngleOffset = 0;
-  			     this.weaponf.bulletSpeed = 800;
-  			     this.weaponf.fireRate = 200;
-  			     this.weaponf.bulletAngleVariance = 3;
+  			     this.weaponf.bulletSpeed = foeshootspd;
+  			     this.weaponf.fireRate = foeshootrate;
+  			     this.weaponf.bulletAngleVariance = foeshootvariance;
   			     this.weaponf.trackSprite(this.foe, 14, 15);
   			     game.physics.arcade.enable(this.weaponf, Phaser.Physics.P2);
 			}
@@ -223,7 +227,7 @@
 				//pause
 				if (esc.isDown) {this.pause();}
 
-				//onfloor
+				//floorpain
 				if(this.man.body.onFloor()==true){manhp -= floorpain;}
 				if(this.foe.body.onFloor()==true){foehp -= floorpain;}
 
@@ -287,7 +291,7 @@
 
 
    			    //attack!!
-   			    if(manatk.isDown && manmp>0){this.weaponm.fire(); manmp-=0.3; manmpregain = 0;}
+   			    if(manatkkey.isDown && manmp>0){this.weaponm.fire(); manmp-=0.3; manmpregain = 0;}
    			    	else if(manmp < 0){manmp = 0;}
    			    if(enter.isDown && foemp>0){this.weaponf.fire(); foemp-=0.3; foempregain = 0;}
    			    	else if(foemp < 0){foemp = 0;}
@@ -319,11 +323,21 @@
 			}
 
 			this.foehitweaponm = function(){
-				foehp-=6;
+				if(manatk>foedef){
+					foehp -= manatk/100 - foedef/100;
+				}
+				else{
+					console.log("foe::block");
+				}
 			}
 
 			this.manhitweaponf = function(){
-				manhp-=6;
+				if(foeatk>mandef){
+					manhp -= foeatk/100 - mandef/100;
+				}
+				else{
+					console.log("man::block");
+				}
 			}
 
 			this.foewin = function(){
@@ -397,6 +411,7 @@
 		function cout(){
 			if(gamestarted == true){
 				document.getElementById("savezone").innerHTML = 
+					ver + '&j&c&' +
 					manlv + '&j&c&' + 
 					manexp + '&j&c&' + 
 					foelv + '&j&c&' + 
@@ -415,15 +430,16 @@
 		}
 
 
-		function cin(){
-			console.log('cin');
-			alert('上傳存檔功能暫時不能使用，敬請期待!')
-		}
-
 
 		function show_personalize(){
 			$('#personalize').fadeIn(300);
 			game.paused = true;
+		}
+
+		function show_status(){
+			$('#status').fadeIn(300);
+			game.paused = true;
+			statusprint();
 		}
 
 		function fullscreen(){//yee
@@ -436,8 +452,9 @@
 
 
 
-	<button type="button" onclick="fullscreen()" style="position: absolute; top: 525px; left: 250px; font-size: 20px;">GO FULLSCREEN!</button>
-	<button type="button" onclick="show_personalize()" style="position: absolute; top: 525px; left: 10px; font-size: 16px">SAVEDATA</button>
+	<button type="button" onclick="fullscreen()" style="position: absolute; top: 525px; left: 215px; font-size: 30px;">GO FULLSCREEN!</button>
+	<button type="button" onclick="show_personalize()" style="position: absolute; top: 525px; left: 10px; font-size: 16px">PERSONALIZE</button>
+	<button type="button" onclick="show_status()" style="position: absolute; top: 525px; left: 580px; font-size: 16px">STATUS</button>
 	
 <!-- =========================================================================================================================== -->
 	<script>
@@ -525,7 +542,62 @@
 
 		<button type="button" onclick="hide_personalize()" style="position: absolute; top: 530px; left: 42.5%; font-size: 20px">Ready!</button>
 	</div>	
+
 <!-- ====================================================================================================================== -->
+	<script>
+		function hide_status(){
+			$('#status').fadeOut(300);
+			game.paused = false;
+		}
+
+		function statusprint(){
+			document.getElementById("mannmp").innerHTML = manname;
+			document.getElementById("manhpp").innerHTML = manmaxhp;
+			document.getElementById("manmpp").innerHTML = manmaxmp;
+			document.getElementById("manlvp").innerHTML = manlv;
+			document.getElementById("manexpp").innerHTML = manexp;
+			document.getElementById("manstylep").innerHTML = manstyle;		
+			document.getElementById("manatkp").innerHTML = manatk;
+			document.getElementById("manhpcurep").innerHTML = manhpcure;
+			document.getElementById("mansspdp").innerHTML = manshootspd;
+			document.getElementById("mandefp").innerHTML = mandef;
+			document.getElementById("manmpcurep").innerHTML = manmpcure;
+			document.getElementById("manssp").innerHTML = mansskill;
+			document.getElementById("manaccup").innerHTML = "-" + manshootvariance;
+			document.getElementById("mansratep").innerHTML = manshootrate;
+		}
+	
+	</script>
+	<div id="status" style="background: rgba(102,102,255,0.9); z-index: 87;position: absolute; top: 0; left: 0; height: 100%; width: 100%; display: none;">
+		<div id="manstatus" style="position: absolute; left: 1%; right: 55%;height: 87%;text-align: center; font-size: 24px">
+			<div style="font-size: 45px; text-align: center;">P1<img src="asset/birdX" style="text-align: center"></div>
+			<div>
+				<div>Name = <b id="mannmp"></b></div>
+				<div>Lv. <b id="manlvp"></b></div>
+				<div>exp = <b id="manexpp"></b></div>
+				<div>Style = <b id="manstylep"></b></div>
+				<br>				
+				<div>HP.max = <b id="manhpp"></b></div>
+				<div>HPcure = <b id="manhpcurep"></b></div>
+				<div>MP.max = <b id="manmpp"></b></div>
+				<div>MPcure = <b id="manmpcurep"></b></div>
+				<div>ATK/<b id="manatkp"></b></div>
+				<div>DEF/<b id="mandefp"></b></div>
+				<div>ShootSpeed = <b id="mansspdp"></b></div>
+				<div>ShootRate = <b id="mansratep"></b></div>
+				<div>ShootAccuracy = <b id="manaccup"></b></div>
+				<div>SpecialSkill = <b id="manssp"></b></div>
+			</div>	
+		</div>
+	<!-- ------------------------------------------------------------------------------------------------ -->
+		<div id="psl_bar" style="position: absolute;left: 47%; height: 100%; top:0; background: black;">|</div>
+	<!-- ------------------------------------------------------------------------------------------------ -->
+		<div id="foestatus" style="position: absolute;text-align: right ;left: 53%; right: 1%;height: 87%;">
+			<div style="font-size: 45px; text-align: center;"><img src="asset/bird2X" style="text-align: center">P2</div>
+		</div>
+		<button type="button" onclick="hide_status()" style="position: absolute; top: 530px; left: 45%; font-size: 20px">Ready!</button>
+	</div>
+
 </body>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
 </html>
