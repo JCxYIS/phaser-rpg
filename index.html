@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>PhAsEr RpG?</title>
+	<title>J.C.★YIS::Flappy Battle</title>
+	<link rel="shortcut icon" href="asset/birdX.png">
 	<meta charset="utf-8">
 	<script src="phaser.min-2.7.7.js"></script>
     <script src="gameskills.js"></script>
@@ -17,8 +18,8 @@
 
 <body style="font-family: 'Hall Fetica'">
 	<script name="ver">//-----------------------------------------------------
-		var ver = '2.0';
-		var udt = "0616: 2 new weapons added!\n0616: MPP"
+		var ver = '2.1';
+		var udt = "0617: HPP, and hp regain gets slower\n0617: background added!\n0616: 2 new weapons added!\n0616: MPP"
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
@@ -27,13 +28,17 @@
 		var mpfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'blue'};
 		var sklfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'purple'};
 		var mppunfontformat = {font: 'Hall Fetica', fontSize: '14px', fill: 'red'};
+		var hppunfontformat = {font: 'Hall Fetica', fontSize: '14px', fill: 'pink'};
 
 		var cancontrol = true;
-		var floorpain = 0.19;
+		var maneffnum = 0;
+		var foeeffnum = 0;
+		var manplaymppunish, foeplaymppunish;
+		var manplayhpp, foeplayhpp;
 
 
 		//personalize stuff
-		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foem,foehpcure,manshootspd,foeshootspd,manshootvariance,manshootrate,foeshootrate ,foeshootvariance ,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill,manmpuse,foempuse,manmppunish,foemppunish; 
+		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foem,foehpcure,manshootspd,foeshootspd,manshootvariance,manshootrate,foeshootrate ,foeshootvariance ,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill,manmpuse,foempuse,manmppunish,foemppunish,manfloorpain,foefloorpain; 
 		function init(){
 			manname = 'p1';
 			foename = 'p2';
@@ -45,12 +50,14 @@
 			foestyle = "Standard";			
 			manatk = 500;
 			foeatk = 500;
+			manfloorpain = 0.2;
+			foefloorpain = 0.2;
 			manmaxhp = 500;
 			manhpcure = 200;
 			foemaxhp = 500;
 			foehpcure = 200;
-			manmppunish = 100;
-			foemppunish = 100;
+			manmppunish = 300;
+			foemppunish = 300;
 			manshootspd = 400;
 			foeshootspd = 400;
 			manshootrate = 200;
@@ -70,12 +77,10 @@
 		}
 
 		function reinit(){
-			manhp = manmaxhp;
-			foehp = foemaxhp;
-	    	foemp = foemaxmp / 2;
-			manmp = manmaxmp / 2;
-			manplaymppunish = manmppunish;
-			foeplaymppunish = foemppunish;
+			manhp = manmaxhp; foehp = foemaxhp;
+	    	foemp = foemaxmp / 2; manmp = manmaxmp / 2;
+			manplaymppunish = 300; foeplaymppunish = 300;
+			manplayhpp = 300; foeplayhpp = 300;
 		}
 	init();
 	reinit();
@@ -99,12 +104,15 @@
 
 		game.States.preload = function(){
 			this.preload = function(){
+				//load
     			game.load.spritesheet('man','asset/bird1.png',34,24,6); 
     			game.load.spritesheet('foe','asset/bird2b.png',34,24,6);
     			game.load.spritesheet('play-icon','asset/play-icon.png');
     			game.load.image('bullet','asset/bullet.png');
     			game.load.image('bullet2','asset/bullet2.png');
     			game.load.image('ggbg','asset/ggbg.png');
+    			game.load.image('background','asset/fpbackground.png'); 
+      		    game.load.image('ground','asset/fpground.png'); 
 
     			var progressText = game.add.text(game.world.centerX, game.world.centerY, '0%', {
    					fontSize: '60px',
@@ -129,8 +137,8 @@
 				var btn = game.add.button(300,170,'play-icon',function(){game.state.start('play');});
 				btn.anchor.setTo(0.5,0);
 
-				game.add.text(0, 0, 'V.' + ver ,{fontSize:'16px', font:'Hall Fetica'});
-				game.add.text(0,16, udt, {fontSize:'14px', font:'Hall Fetica'});
+				game.add.text(0, 0, 'V.' + ver ,{fontSize:'18px', font:'Hall Fetica'});
+				game.add.text(0,19, udt, {fontSize:'14px', font:'Hall Fetica'});
 			}
 
 			this.update = function(){
@@ -144,27 +152,54 @@
 		game.States.play = function(){
 			this.create = function(){
 				gamestarted = true;
+				//floor, bg
+				var bg = game.add.tileSprite(0, -80, game.width, game.height, 'background'); 
+        		var ground = game.add.tileSprite(0, game.height-87, game.width, 112, 'ground'); 
+      		    bg.autoScroll(-10,0); 
+       			ground.autoScroll(-487,0); 
+
+       			//print name
+       			this.printmanname = game.add.text(20, 3, manname ,{fontSize:'16px', font:'Hall Fetica', fontStyle:'italic'});
+       			this.printfoename = game.add.text(630, 3, foename ,{fontSize:'16px', font:'Hall Fetica', fontStyle:'italic'});
+       			this.printfoename.anchor.setTo(1,0);
+
 				//printhp
-				this.printmanhp = game.add.text(22, 20, manhp, hpfontformat);
+				this.printmanhp = game.add.text(20, 20, manhp, hpfontformat);
 				this.printmanof = game.add.text(70, 20, '/', hpfontformat);
 				this.printmanmaxhp = game.add.text(90, 20, manmaxhp, hpfontformat);
-				this.printfoehp = game.add.text(522, 20, foehp, hpfontformat);
-				this.printfoeof = game.add.text(570, 20, '/', hpfontformat);
-				this.printfoemaxhp = game.add.text(590, 20, foemaxhp, hpfontformat);
+				this.printfoehp = game.add.text(560, 20, foehp, hpfontformat);
+				this.printfoehp.anchor.setTo(1,0);
+				this.printfoeof = game.add.text(580, 20, '/', hpfontformat);
+				this.printfoeof.anchor.setTo(1,0);
+				this.printfoemaxhp = game.add.text(630, 20, foemaxhp, hpfontformat);
+				this.printfoemaxhp.anchor.setTo(1,0);
 
 				//printmp
-				this.printmanmp = game.add.text(22, 50, manmp, mpfontformat);
+				this.printmanmp = game.add.text(20, 50, manmp, mpfontformat);
 				this.printmanofm = game.add.text(55, 50, '/', mpfontformat);
 				this.printmanmaxmp = game.add.text(70, 50, manmaxmp, mpfontformat);
-				this.printfoemp = game.add.text(542, 50, foemp, mpfontformat);
-				this.printfoeofm = game.add.text(575, 50, '/', mpfontformat);
-				this.printfoemaxmp = game.add.text(590, 50, foemaxmp, mpfontformat);
+				this.printfoemp = game.add.text(580, 50, foemp, mpfontformat);
+				this.printfoemp.anchor.setTo(1,0);
+				this.printfoeofm = game.add.text(600, 50, '/', mpfontformat);
+				this.printfoeofm.anchor.setTo(1,0);
+				this.printfoemaxmp = game.add.text(630, 50, foemaxmp, mpfontformat);
+				this.printfoemaxmp.anchor.setTo(1,0);
 
-				//printmppunish
-				this.printmanmppun = game.add.text(22, 80, "M.P.P.", mppunfontformat);
-				this.printmanmaxmppun = game.add.text(70, 80, manplaymppunish, mppunfontformat);
-				this.printfoemppun = game.add.text(542, 80,"M.P.P. ", mppunfontformat);
-				this.printfoemaxmppun = game.add.text(590, 80, foeplaymppunish, mppunfontformat);
+				//printpunish(pp)
+				this.printmanhppun = game.add.text(20, 70, "H.P.P.", hppunfontformat);
+				this.printmanmaxhppun = game.add.text(70, 70, manplayhpp, hppunfontformat);
+				this.printfoehppun = game.add.text(580, 70,"H.P.P. ", hppunfontformat);
+				this.printfoehppun.anchor.setTo(1,0);
+				this.printfoemaxhppun = game.add.text(630, 70, foeplayhpp, hppunfontformat);
+				this.printfoemaxhppun.anchor.setTo(1,0);
+
+				this.printmanmppun = game.add.text(20, 85, "M.P.P.", mppunfontformat);
+				this.printmanmaxmppun = game.add.text(70, 85, manplaymppunish, mppunfontformat);
+				this.printfoemppun = game.add.text(580, 85,"M.P.P. ", mppunfontformat);
+				this.printfoemppun.anchor.setTo(1,0);
+				this.printfoemaxmppun = game.add.text(630, 85, foeplaymppunish, mppunfontformat);
+				this.printfoemaxmppun.anchor.setTo(1,0);
+
 
 				/*//print skill
 				this.printmanskl = game.add.text(22, 70, skills[mansskill], sklfontformat);
@@ -244,8 +279,8 @@
 				if (spacebar.isDown) {this.pause();}
 
 				//floorpain
-				if(this.man.body.onFloor()==true){manhp -= floorpain; manplaymppunish = manmppunish;}
-				if(this.foe.body.onFloor()==true){foehp -= floorpain; foeplaymppunish = foemppunish;}
+				if(this.man.body.onFloor()==true){manhp -= manfloorpain; manplaymppunish = manmppunish;}
+				if(this.foe.body.onFloor()==true){foehp -= foefloorpain; foeplaymppunish = foemppunish;}
 
 				//gg and print
 				if(manhp<0){manhp = 0;}
@@ -258,15 +293,23 @@
 
 				if(foehp > 0){}
 					else if(manhp > 0 && foehp == 0){this.manwin();}
-					else if(manhp == 0 && foehp == 0){this.suddendeath();}
 
 				this.printmanmp.text = Math.floor(manmp);
 				this.printfoemp.text = Math.floor(foemp);
 
+				//punish kill and revive
 				if(manplaymppunish > 0){this.printmanmaxmppun.text = Math.floor(manplaymppunish);this.printmanmppun.revive();this.printmanmaxmppun.revive();}
 					else{this.printmanmppun.kill();this.printmanmaxmppun.kill();}
 				if(foeplaymppunish > 0){this.printfoemaxmppun.text = Math.floor(foeplaymppunish);this.printfoemppun.revive();this.printfoemaxmppun.revive();}
 					else{this.printfoemppun.kill();this.printfoemaxmppun.kill();}
+
+				if(manplayhpp > 0){this.printmanmaxhppun.text = Math.floor(manplayhpp);this.printmanhppun.revive();this.printmanmaxhppun.revive();}
+					else{this.printmanhppun.kill();this.printmanmaxhppun.kill();}
+				if(foeplayhpp > 0){this.printfoemaxhppun.text = Math.floor(foeplayhpp);this.printfoehppun.revive();this.printfoemaxhppun.revive();}
+					else{this.printfoehppun.kill();this.printfoemaxhppun.kill();}
+
+				manplaymppunish -= 1.5; foeplaymppunish -= 1.5;
+				manplayhpp -= 1.5; foeplayhpp -= 1.5;
 
 				//move p1 man
 				if (manleft.isDown){
@@ -294,16 +337,17 @@
    			    if (cursors.up.isDown) {this.foe.body.velocity.y = -300; }
    			    	else if(cursors.down.isDown){this.foe.body.velocity.y = 500;}
 
+   			    //sudden death!!!!!!!
+   			    if(manhp == 0 && foehp == 0){this.suddendeath();}
+
    			    //mp+hp regain
-   			    if(manhp < manmaxhp){
-   			    	manhp += manhpcure / 10000;
+   			    if(manhp < manmaxhp && manplayhpp<=0){
+   			    	manhp += manhpcure / 15000;
    			    }
-   			    if(foehp < foemaxhp){
-   			      	foehp += foehpcure / 10000;
+   			    if(foehp < foemaxhp && foeplayhpp<=0){
+   			      	foehp += foehpcure / 15000;
    			    }
 
-
-   			    manplaymppunish -=1; foeplaymppunish -= 1;
    			    if(manmp < manmaxmp && manplaymppunish<=0){
    			    	manmp += manmpcure / 10000;
    			    }
@@ -322,6 +366,8 @@
 
 			}
 
+			//-------------------------------------------------------------------------------------------
+
 			this.pause = function(){
 				pausebg = game.add.image(0,0,'ggbg');
 				pausetext = game.add.text(325, 50, "PAUSED", {font: 'Hall Fetica', fontSize: '55px', fill: 'white'});
@@ -337,6 +383,10 @@
 					pausetext.destroy();
 					pauseclick.destroy();
 				}
+			}
+
+			this.printmaneff = function(effect , style, time){
+				//this.printmanmppun = game.add.text(22, 80, "M.P.P.", mppunfontformat);
 			}
 
 			this.mfcrash = function(){
@@ -377,11 +427,6 @@
 			}
 
 			this.suddendeath = function(){
-				manhp = 1;
-				foehp = 1;
-				manmp = 1;
-				foemp = 1;
-
 				var sdthing = "Wow! You guys are on fire!\n Now, let's start the final face off\n\nClick to rush!"
 				game.add.image(0,0,'ggbg');
 				sdtxt = game.add.text(325, 50, 'SUDDEN DEATH', {font: 'Hall Fetica', fontSize: '55px', fill: 'white'});
@@ -390,8 +435,13 @@
 				clicksd = game.add.text(325, 225, sdthing , {font: 'Hall Fetica', fontSize: '16px', fill: 'white'});
 				clicksd.anchor.setTo(0.5,0.5);
 
-				game.paused = true;
+				game.paused = true;				
 				game.input.onDown.add(unpause, self);
+
+				manhp = 1; foehp = 1;
+				manmp = 1; foemp = 1;
+				manplayhpp = 1000000; foeplayhpp = 1000000;
+				manplaymppunish = 500; foeplaymppunish = 500;
 
 				function unpause(event){
 					game.paused = false;
@@ -402,8 +452,8 @@
 
 			this.ggbox = function(winner){
 				game.add.image(0,0,'ggbg');
-				winnertxt = game.add.text(325, 50, winner + ' WON!', {font: 'Hall Fetica', fontSize: '55px', fill: 'white'});
-				winnertxt.anchor.setTo(0.5,0.5);
+				winnertxt = game.add.text(325, 50, winner + ' WON!', {font: 'Hall Fetica', fontSize: '55px', fill: 'white', wordWrap: true,  wordWrapWidth: 600});
+				winnertxt.anchor.setTo(0.5, 0);
 				clickgg = game.add.text(325, 420, "Click to continue...", {font: 'Hall Fetica', fontSize: '16px', fill: 'white'});
 				clickgg.anchor.setTo(0.5,0.5);
 
@@ -429,7 +479,7 @@
 
 <!-- =============================================================================================================================================== -->
 
-	<h2>接西.io 糞game</h2>
+	<h2>接西.io 糞game : Flappy Battle</h2>
 
 	<script name="data">
 		function cout(){
@@ -473,22 +523,14 @@
 			game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
 			game.scale.startFullScreen();
 		}
-
-		document.onkeydown = keyFunction;
-		function keyFunction(){
-			if (event.keyCode == 115) {
-				fullscreen();
-				return false;
-			}
-		}
 	</script>
 
 
 
 
 	<button type="button" onclick="fullscreen()" style="position: absolute; top: 525px; left: 187px; font-size: 30px;">GO FULLSCREEN!(F4)</button>
-	<button type="button" onclick="show_personalize()" style="position: absolute; top: 525px; left: 10px; font-size: 16px">PERSONALIZE</button>
-	<button type="button" onclick="show_status()" style="position: absolute; top: 525px; left: 580px; font-size: 16px">STATUS</button>
+	<button type="button" onclick="show_personalize()" style="position: absolute; top: 525px; left: 10px; font-size: 16px">PERSONALIZE(F2)</button>
+	<button type="button" onclick="show_status()" style="position: absolute; top: 525px; left: 551px; font-size: 16px">STATUS(F6)</button>
 	
 <!-- =========================================================================================================================== -->
 	<script>
@@ -504,6 +546,12 @@
 
 		function hide_personalize(){
 			$('#personalize').fadeOut(300);
+			if(manform.manname.value!=""){
+				manconfirm();
+			}
+			if(foeform.foename.value!=""){
+				foeconfirm();
+			}
 			game.paused = false;
 		}
 
@@ -578,7 +626,7 @@
 			    <b id="foeconfirmed"></b>
 		</div>
 
-		<button type="button" onclick="hide_personalize()" style="position: absolute; top: 530px; left: 42.5%; font-size: 20px">Ready!</button>
+		<button type="button" onclick="hide_personalize()" style="position: absolute; top: 530px; left: 42.5%; font-size: 20px">Ready!(F2)</button>
 	</div>	
 
 <!-- ====================================================================================================================== -->
@@ -666,8 +714,29 @@
 				<div>SpecialSkill = <b id="foessp"></b></div>
 			</div>
 		</div>
-		<button type="button" onclick="hide_status()" style="position: absolute; top: 530px; left: 45%; font-size: 20px">Ready!</button>
+		<button type="button" onclick="hide_status()" style="position: absolute; top: 530px; left: 42.5%; font-size: 20px">Ready!(F6)</button>
 	</div>
+
+	<script name="KEY FUNC">
+		document.onkeydown = keyFunction;
+		function keyFunction(){
+			if (event.keyCode == 115) { //F4
+				fullscreen();
+				return false;
+			}
+			else if(event.keyCode == 113) { //F2
+				if(document.getElementById("personalize").style.display != "none"){hide_personalize();}
+				else{show_personalize();}
+				return false;
+			}
+			else if(event.keyCode == 117) { //F6
+				if(document.getElementById("status").style.display != "none"){hide_status();}
+				else{show_status();}
+				return false;
+			}
+			
+		}
+	</script>
 
 </body>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>

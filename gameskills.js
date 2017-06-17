@@ -36,6 +36,7 @@ function mansetstandard() {
 			mandef = 100;
 			manmaxmp = 500;
 			manmpcure = 200;
+			manfloorpain = 0.2;
 			//mansskill = 0;
 			reinit();
 }
@@ -56,6 +57,7 @@ function mansetsniper() {
 			mandef = 87;
 			manmaxmp = 520;
 			manmpcure = 250;
+			manfloorpain = 0.15;
 			//mansskill = 0;
 			reinit();
 }
@@ -75,6 +77,7 @@ function mansetmachinegun() {
 			mandef = 90;
 			manmaxmp = 666;
 			manmpcure = 287;
+			manfloorpain = 0.35;
 			//mansskill = 0;
 			reinit();
 }
@@ -110,14 +113,16 @@ function foesetstandard() {
 			foestyle = "Standard";
 			foeatk = 500;
 			foemaxhp = 500;
-			foehpcure = 200;		
+			foehpcure = 200;
+			foemppunish = 300;		
 			foeshootspd = 400;
 			foeshootrate = 200;
 			foeshootvariance = 3;
-			foempuse = 0.3;
+			foempuse = 0.5;
 			foedef = 100;
 			foemaxmp = 500;
 			foempcure = 200;
+			foefloorpain = 0.2;
 			//foesskill = 0;
 			reinit();
 }
@@ -129,14 +134,16 @@ function foesetsniper() {
 			foestyle = "Sniper";
 			foeatk = 4000;
 			foemaxhp = 420;
-			foehpcure = 230;		
+			foehpcure = 230;
+			foemppunish = 230;		
 			foeshootspd = 800;
 			foeshootrate = 1000;
 			foeshootvariance = 0;
-			foempuse = 0.9;
+			foempuse = 1.0;
 			foedef = 87;
 			foemaxmp = 520;
 			foempcure = 250;
+			foefloorpain = 0.15;
 			//foesskill = 0;
 			reinit();
 }
@@ -145,19 +152,18 @@ function foesetmachinegun() {
 			foelv = 1;
 			foeexp = 0;
 			foestyle = "Machine Gun";
-			foeatk = 300;
+			foeatk = 150;
 			foemaxhp = 505;
-			foehpcure = 200;		
+			foehpcure = 200;
+			foemppunish = 420;		
 			foeshootspd = 250;
 			foeshootrate = 100;
 			foeshootvariance = 12;
-			foempuse = 0.2;
+			foempuse = 0.25;
 			foedef = 90;
 			foemaxmp = 666;
 			foempcure = 287;
+			foefloorpain = 0.35;
 			//foesskill = 0;
 			reinit();
 }
-
-
-//======================FOE===========================================================================================================================
