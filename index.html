@@ -18,27 +18,29 @@
 
 <body style="font-family: 'Hall Fetica'">
 	<script name="ver">//-----------------------------------------------------
-		var ver = '2.11';
-		var udt = "0617: HPP, and hp regain gets slower\n0617: background added!\n0616: 2 new weapons added!\n0616: MPP"
+		var ver = '2.2';
+		var udt = "0617: combo\n0617: HPP, and hp regain gets slower\n0617: background added!\n0616: 2 new weapons added!"
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
 
-		var hpfontformat = {font: 'Hall Fetica', fontSize: '25px'} ;
+		var hpfontformat = {font: 'Hall Fetica', fontSize: '25px', fill:'black'} ;
 		var mpfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'blue'};
 		var sklfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'purple'};
 		var mppunfontformat = {font: 'Hall Fetica', fontSize: '14px', fill: 'red'};
 		var hppunfontformat = {font: 'Hall Fetica', fontSize: '14px', fill: 'pink'};
+		var cbfontformat = {font: 'Hall Fetica', fontSize: '50px', fill: 'red'};
 
 		var cancontrol = true;
-		var maneffnum = 0;
-		var foeeffnum = 0;
+		var maneffnum = 0; foeeffnum = 0;
+		var mancanthit = false; foecanthit = false;
 		var manplaymppunish, foeplaymppunish;
 		var manplayhpp, foeplayhpp;
+		var mancombo = 0, foecombo = 0, mancbtmp=0, foecbtmp=0;
 
 
 		//personalize stuff
-		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foem,foehpcure,manshootspd,foeshootspd,manshootvariance,manshootrate,foeshootrate ,foeshootvariance ,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill,manmpuse,foempuse,manmppunish,foemppunish,manfloorpain,foefloorpain; 
+		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foem,foehpcure,manshootspd,foeshootspd,manshootvariance,manshootrate,foeshootrate ,foeshootvariance ,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill,manmpuse,foempuse,manmppunish,foemppunish,manfloorpain,foefloorpain, mannocombo, foenocombo; 
 		function init(){
 			manname = 'p1';
 			foename = 'p2';
@@ -81,6 +83,7 @@
 	    	foemp = foemaxmp / 2; manmp = manmaxmp / 2;
 			manplaymppunish = 300; foeplaymppunish = 300;
 			manplayhpp = 300; foeplayhpp = 300;
+			mannocombo = 3; foenocombo = 3;
 		}
 	init();
 	reinit();
@@ -185,20 +188,30 @@
 				this.printfoemaxmp = game.add.text(630, 50, foemaxmp, mpfontformat);
 				this.printfoemaxmp.anchor.setTo(1,0);
 
+				//print combo!!
+				this.mancombos = game.add.text(65, 65, mancombo, cbfontformat);
+				this.manhits = game.add.text(20, 90, "Hits!!", {font: 'Hall Fetica', fontSize: '21px',fill:'red'});
+				this.foecombos = game.add.text(585, 65, foecombo, cbfontformat);
+				this.foecombos.anchor.setTo(1,0);
+				this.foehits = game.add.text(630, 90, "Hits!!", {font: 'Hall Fetica', fontSize: '21px',fill:'red'});
+				this.foehits.anchor.setTo(1,0);
+
 				//printpunish(pp)
-				this.printmanhppun = game.add.text(20, 70, "H.P.P.", hppunfontformat);
-				this.printmanmaxhppun = game.add.text(70, 70, manplayhpp, hppunfontformat);
-				this.printfoehppun = game.add.text(580, 70,"H.P.P. ", hppunfontformat);
+				this.printmanhppun = game.add.text(20, 130, "H.P.P.", hppunfontformat);
+				this.printmanmaxhppun = game.add.text(70, 130, manplayhpp, hppunfontformat);
+				this.printfoehppun = game.add.text(580, 130,"H.P.P. ", hppunfontformat);
 				this.printfoehppun.anchor.setTo(1,0);
-				this.printfoemaxhppun = game.add.text(630, 70, foeplayhpp, hppunfontformat);
+				this.printfoemaxhppun = game.add.text(630, 130, foeplayhpp, hppunfontformat);
 				this.printfoemaxhppun.anchor.setTo(1,0);
 
-				this.printmanmppun = game.add.text(20, 85, "M.P.P.", mppunfontformat);
-				this.printmanmaxmppun = game.add.text(70, 85, manplaymppunish, mppunfontformat);
-				this.printfoemppun = game.add.text(580, 85,"M.P.P. ", mppunfontformat);
+				this.printmanmppun = game.add.text(20, 145, "M.P.P.", mppunfontformat);
+				this.printmanmaxmppun = game.add.text(70, 145, manplaymppunish, mppunfontformat);
+				this.printfoemppun = game.add.text(580, 145,"M.P.P. ", mppunfontformat);
 				this.printfoemppun.anchor.setTo(1,0);
-				this.printfoemaxmppun = game.add.text(630, 85, foeplaymppunish, mppunfontformat);
+				this.printfoemaxmppun = game.add.text(630, 145, foeplaymppunish, mppunfontformat);
 				this.printfoemaxmppun.anchor.setTo(1,0);
+
+				//print effects
 
 
 				/*//print skill
@@ -311,6 +324,18 @@
 				manplaymppunish -= 1.5; foeplaymppunish -= 1.5;
 				manplayhpp -= 1.5; foeplayhpp -= 1.5;
 
+				//combo kill and revive
+				if(mancbtmp != mancombo){ mancbtmp = mancombo; mannocombo = 0;}
+					else{mannocombo+=0.015;}
+				if(mannocombo <3){this.mancombos.text = Math.floor(mancombo);this.mancombos.revive();this.manhits.revive();}	
+					else if(mannocombo >= 3){mancombo = 0; mancbtmp = 0;this.mancombos.kill();this.manhits.kill();}
+
+				if(foecbtmp != foecombo){foecbtmp = foecombo; foenocombo = 0;}
+					else{foenocombo+=0.015;}
+				if(foenocombo <3){this.foecombos.text = Math.floor(foecombo);this.foecombos.revive();this.foehits.revive();}		
+					else if(foenocombo >= 3){foecombo = 0;foecbtmp = 0;this.foecombos.kill();this.foehits.kill();}
+
+
 				//move p1 man
 				if (manleft.isDown){
 					this.man.body.velocity.x = -250; 
@@ -398,6 +423,7 @@
 				if(manatk>foedef){
 					foehp -= manatk/100 - foedef/100;
 					foeplaymppunish = foemppunish;
+					mancombo += 1;
 				}
 				else{
 					console.log("foe::block");
@@ -408,6 +434,7 @@
 				if(foeatk>mandef){
 					manhp -= foeatk/100 - mandef/100;
 					manplaymppunish = manmppunish;
+					foecombo +=1;
 				}
 				else{
 					console.log("man::block");
@@ -528,9 +555,9 @@
 
 
 
-	<button type="button" onclick="fullscreen()" style="position: absolute; top: 525px; left: 187px; font-size: 30px;">GO FULLSCREEN!(F4)</button>
-	<button type="button" onclick="show_personalize()" style="position: absolute; top: 525px; left: 10px; font-size: 16px">PERSONALIZE(F2)</button>
-	<button type="button" onclick="show_status()" style="position: absolute; top: 525px; left: 551px; font-size: 16px">STATUS(F6)</button>
+	<button type="button" onclick="fullscreen()" style="position: absolute; top: 540px; left: 187px; font-size: 30px;">GO FULLSCREEN!(F4)</button>
+	<button type="button" onclick="show_personalize()" style="position: absolute; top: 540px; left: 10px; font-size: 16px">PERSONALIZE(F2)</button>
+	<button type="button" onclick="show_status()" style="position: absolute; top: 540px; left: 551px; font-size: 16px">STATUS(F6)</button>
 	
 <!-- =========================================================================================================================== -->
 	<script>

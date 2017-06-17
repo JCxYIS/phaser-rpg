@@ -66,11 +66,11 @@ function mansetmachinegun() {
 			manlv = 1;
 			manexp = 0;
 			manstyle = "Machine Gun";
-			manatk = 150;
+			manatk = 125;
 			manmaxhp = 505;
 			manhpcure = 200;
 			manmppunish = 115;		
-			manshootspd = 250;
+			manshootspd = 265;
 			manshootrate = 100;
 			manshootvariance = 12;
 			manmpuse = 0.25;
