@@ -6,6 +6,8 @@
 	<meta charset="utf-8">
 	<script src="phaser.min-2.7.7.js"></script>
     <script src="gameskills.js"></script>
+    <script src="SAVE.js"></script>
+
     <style type="text/css">
 		@font-face  {
   			font-family: 'Hall Fetica';
@@ -13,17 +15,23 @@
   			  	local('Hall Fetica'),
   			    url('https://jcxyis.github.io/Z_RESOURCE/fonts/Hall%20Fetica.ttf');
 		}
+		@font-face {
+			font-family: 'Hall Fetica+';
+				src:
+					local('Hall Fetica+'),
+					url("https://github.com/JCxYIS/JCxYIS.github.io/blob/master/Z_RESOURCE/fonts/JC-HF+.TTF");
+		}
 	</style>
 </head>
 
-<body style="font-family: 'Hall Fetica'">
+<body style="font-family: 'Hall Fetica','Hall Fetica+'" id="body">
 	<script name="ver">//-----------------------------------------------------
-		var ver = '2.21';
-		var udt = "0617: combo\n0617: HPP, and hp regain gets slower\n0617: background added!\n0616: 2 new weapons added!"
+		var ver = '2.4';
+		var udt = "0618: savedata system(WILL BE DONE SOON)\n0618: MPP = 150 if your mp = 0\n0617: combo\n0617: background added!\n0616: 2 new weapons added!"
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
-
+	    var visited = 0;
 		var hpfontformat = {font: 'Hall Fetica', fontSize: '25px', fill:'black'} ;
 		var mpfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'blue'};
 		var sklfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'purple'};
@@ -37,44 +45,48 @@
 		var manplaymppunish, foeplaymppunish;
 		var manplayhpp, foeplayhpp;
 		var mancombo = 0, foecombo = 0, mancbtmp=0, foecbtmp=0;
+		var manmpdrained = false, foempdrained = false;
 
 
 		//personalize stuff
-		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foem,foehpcure,manshootspd,foeshootspd,manshootvariance,manshootrate,foeshootrate ,foeshootvariance ,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill,manmpuse,foempuse,manmppunish,foemppunish,manfloorpain,foefloorpain, mannocombo, foenocombo; 
-		function init(){
+		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foehpcure,manshootspd,foeshootspd,manshootvariance,manshootrate,foeshootrate ,foeshootvariance ,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill,manmpuse,foempuse,manmppunish,foemppunish,manfloorpain,foefloorpain, mannocombo, foenocombo, manplayed, foeplayed; 
+		function init(){//startup once
 			manname = 'p1';
-			foename = 'p2';
 			manlv = 1;
 			manexp = 0;
-			foelv = 1;
-			foeexp = 0;
-			manstyle = "Standard";
-			foestyle = "Standard";			
+			manplayed = 0;
+			manstyle = "Standard";		
 			manatk = 500;
-			foeatk = 500;
 			manfloorpain = 0.2;
-			foefloorpain = 0.2;
 			manmaxhp = 500;
 			manhpcure = 200;
-			foemaxhp = 500;
-			foehpcure = 200;
 			manmppunish = 300;
-			foemppunish = 300;
 			manshootspd = 400;
-			foeshootspd = 400;
 			manshootrate = 200;
-			foeshootrate = 200;
 			manshootvariance = 3;
-			foeshootvariance = 3;
 			manmpuse = 0.3;
-			foempuse = 0.3;
 			mandef = 100;
-			foedef = 100;
 			manmaxmp = 500;
 			manmpcure = 200;
+			mansskill = 0;
+
+			foename = 'p2';
+			foelv = 1;
+			foeexp = 0;
+			foeplayed = 0;
+			foestyle = "Standard";	
+			foeatk = 500;
+			foefloorpain = 0.2;
+			foemaxhp = 500;
+			foehpcure = 200;
+			foemppunish = 300;
+			foeshootspd = 400;
+			foeshootrate = 200;
+			foeshootvariance = 3;
+			foempuse = 0.3;
+			foedef = 100;
 			foemaxmp = 500;
 			foempcure = 200;
-			mansskill = 0;
 			foesskill = 0; 
 		}
 
@@ -87,6 +99,7 @@
 		}
 	init();
 	reinit();
+	visit();
 	</script>
 
 	<script name="game">
@@ -94,7 +107,7 @@
 		var height = 450;
 		var gamestarted = false;
 
-		var game = new Phaser.Game(width, height, Phaser.auto, 'game');
+		var game = new Phaser.Game(width, height, Phaser.CANVAS, 'game');
 
 		game.States = {};
 
@@ -136,6 +149,8 @@
 	
 		game.States.menu = function(){
 			this.create = function(){
+				gamestarted = false;
+				show_personalize();
 				game.stage.backgroundColor = '#ffe4e1';
 				var btn = game.add.button(300,170,'play-icon',function(){game.state.start('play');});
 				btn.anchor.setTo(0.5,0);
@@ -365,6 +380,12 @@
    			    //sudden death!!!!!!!
    			    if(manhp == 0 && foehp == 0){this.suddendeath();}
 
+   			    //if mp<1...
+   			    if(manmp <= 0 && manmpdrained == false){manplaymppunish = 150; manmpdrained = true;}
+   			    if(foemp <= 0 && foempdrained == false){foeplaymppunish = 150; foempdrained = true;}
+   			    if(manplaymppunish <= 0 && manmpdrained == true){manmpdrained = false;}
+   			    if(foeplaymppunish <= 0 && foempdrained == true){foempdrained = false;}
+
    			    //mp+hp regain
    			    if(manhp < manmaxhp && manplayhpp<=0){
    			    	manhp += manhpcure / 15000;
@@ -417,6 +438,8 @@
 			this.mfcrash = function(){
 				manhp-=6;
 				foehp-=6;
+				mancombo += 1;
+				foecombo += 1;
 			}
 
 			this.foehitweaponm = function(){
@@ -469,6 +492,8 @@
 
 				manhp = 1; foehp = 1;
 				manmp = 1; foemp = 1;
+				mancombo = 0; foecombo = 0; mancbtmp = 0; foecbtmp = 0;
+				mannocombo = 3; foenocombo = 3;
 				manplayhpp = 1000000; foeplayhpp = 1000000;
 				manplaymppunish = 500; foeplaymppunish = 500;
 
@@ -508,41 +533,26 @@
 
 <!-- =============================================================================================================================================== -->
 
-	<h2>接西.io 糞game : Flappy Battle</h2>
+	<h2 style="font-family: 'Hall Fetica','微軟正黑體'">
+		接西.io 糞game : Flappy Battle 
+		<button type="button" onclick="destroy_save()" style="top: -5px">DESTROY SAVEDATA</button>
+	</h2>
 
-	<script name="data">
-		function cout(){
-			if(gamestarted == true){
-				document.getElementById("savezone").innerHTML = 
-					ver + '&j&c&' +
-					manlv + '&j&c&' + 
-					manexp + '&j&c&' + 
-					foelv + '&j&c&' + 
-					foeexp + '&j&c&' + 
-					manmaxhp + '&j&c&' + 
-					manhp + '&j&c&' + 
-					foemaxhp + '&j&c&' +
-					foehp + '&j&c&' +
-			    	manmaxmp + '&j&c&' + 
-					foemaxmp ;
+
+	<script name="show...">
+				function show_personalize(){
+			if (gamestarted == false){
+				$('#personalize').fadeIn(300);
+				game.paused = true;
 			}
-			else{
-				console.log('cout before play')
-				alert('No savedata saved' + '\n' + "(Maybe you haven't gone into the REAL game)");
-			}
-		}
-
-
-
-		function show_personalize(){
-			$('#personalize').fadeIn(300);
-			game.paused = true;
 		}
 
 		function show_status(){
-			$('#status').fadeIn(300);
-			game.paused = true;
-			statusprint();
+			if(gamestarted == false){
+				$('#status').fadeIn(300);
+				game.paused = true;
+				statusprint();
+			}	
 		}
 
 	</script>
@@ -571,16 +581,13 @@
 			var manform = document.getElementById("manform");
 			manname = manform.manname.value;
 			manstyledecide(manform.manstyle.value);
+			manfout();
 		}
 
 		function hide_personalize(){
 			$('#personalize').fadeOut(300);
-			if(manform.manname.value!=""){
-				manconfirm();
-			}
-			if(foeform.foename.value!=""){
-				foeconfirm();
-			}
+			manfout();
+			foefout();
 			game.paused = false;
 		}
 
@@ -592,6 +599,7 @@
 			var foeform = document.getElementById("foeform");
 			foename = foeform.foename.value;
 			foestyledecide(foeform.foestyle.value);
+			foefout();
 		}
 	</script>
 
@@ -604,6 +612,15 @@
 				<textarea id="mansave" style=" white-space: nowrap; overflow: hidden; resize:none;height: 16px"></textarea>
 				<button type="button" name="manok" onclick="mansaveconfirm()">Submit!</button>
 				<br><br>
+				<yis>Or if you're a local, click here!</yis>
+				<button type="button" name="manlocal" onclick="fin('man')">LOCAL</button>
+
+				<div id="manpick" style="top: 0px; left: 0; right: 100%;text-align: left; display: none;background: rgba(255,102,102,0.9);">
+					<button type="button" name="manpickdone" onclick="finfin('man')">This One!</button>
+					<b id="manpickconfirmed"></b>'
+				</div>
+				<br><br>
+
 				<b> &nbsp&nbsp&nbsp If not, fill in the blanks below... &nbsp&nbsp&nbsp</b><br><br>
 
 				<form id="manform">
@@ -635,6 +652,9 @@
 				<yis>If you have a save data, paste it here!</yis>
 				<textarea id="foesave" style=" white-space: nowrap; overflow: hidden; resize:none;height: 16px"></textarea>
 				<button type="button" name="foeok" onclick="foesaveconfirm()">Submit!</button>
+				<br><br>
+				<yis>Or if you're a local, click here!</yis>
+				<button type="button" name="manlocal" onclick="fin('foe')">LOCAL</button>
 				<br><br>
 				<b> &nbsp&nbsp&nbsp If not, fill in the blanks below... &nbsp&nbsp&nbsp</b><br><br>
 
@@ -669,8 +689,8 @@
 
 		function statusprint(){
 			document.getElementById("mannmp").innerHTML = manname;
-			document.getElementById("manhpp").innerHTML = manmaxhp;
-			document.getElementById("manmpp").innerHTML = manmaxmp;
+			document.getElementById("manhppr").innerHTML = manmaxhp;
+			document.getElementById("manmppr").innerHTML = manmaxmp;
 			document.getElementById("manlvp").innerHTML = manlv;
 			document.getElementById("manexpp").innerHTML = manexp;
 			document.getElementById("manstylep").innerHTML = manstyle;		
@@ -682,10 +702,13 @@
 			document.getElementById("manssp").innerHTML = mansskill;
 			document.getElementById("manaccup").innerHTML = "-" + manshootvariance;
 			document.getElementById("mansratep").innerHTML = manshootrate;
+			document.getElementById("manmppp").innerHTML = manmppunish;
+			document.getElementById("manmpusep").innerHTML = manmpuse;
+			document.getElementById("manfloorpainp").innerHTML = manfloorpain;
 
 			document.getElementById("foenmp").innerHTML = foename;
-			document.getElementById("foehpp").innerHTML = foemaxhp;
-			document.getElementById("foempp").innerHTML = foemaxmp;
+			document.getElementById("foehppr").innerHTML = foemaxhp;
+			document.getElementById("foemppr").innerHTML = foemaxmp;
 			document.getElementById("foelvp").innerHTML = foelv;
 			document.getElementById("foeexpp").innerHTML = foeexp;
 			document.getElementById("foestylep").innerHTML = foestyle;		
@@ -697,6 +720,9 @@
 			document.getElementById("foessp").innerHTML = foesskill;
 			document.getElementById("foeaccup").innerHTML = "-" + foeshootvariance;
 			document.getElementById("foesratep").innerHTML = foeshootrate;
+			document.getElementById("foemppp").innerHTML = foemppunish;
+			document.getElementById("foempusep").innerHTML = foempuse;
+			document.getElementById("foefloorpainp").innerHTML = foefloorpain;
 		}
 	
 	</script>
@@ -709,16 +735,19 @@
 				<div>exp = <b id="manexpp"></b></div>
 				<div>Style = <b id="manstylep"></b></div>
 				<br>				
-				<div>HP.max = <b id="manhpp"></b></div>
+				<div>HP.max = <b id="manhppr"></b></div>
 				<div>HPcure = <b id="manhpcurep"></b></div>
-				<div>MP.max = <b id="manmpp"></b></div>
+				<div>MP.max = <b id="manmppr"></b></div>
 				<div>MPcure = <b id="manmpcurep"></b></div>
+				<div>M.P.P. = <b id="manmppp"></b></div>
 				<div>ATK/<b id="manatkp"></b></div>
 				<div>DEF/<b id="mandefp"></b></div>
-				<div>ShootSpeed = <b id="mansspdp"></b></div>
+				<div>BulletSpeed = <b id="mansspdp"></b></div>
 				<div>ShootRate = <b id="mansratep"></b></div>
 				<div>ShootAccuracy = <b id="manaccup"></b></div>
+				<div>ShootMPcost = <b id="manmpusep"></b></div>
 				<div>SpecialSkill = <b id="manssp"></b></div>
+				<div>OnFloorHurt = <b id="manfloorpainp"></b></div>
 			</div>	
 		</div>
 	<!-- ------------------------------------------------------------------------------------------------ -->
@@ -733,16 +762,19 @@
 				<div>exp = <b id="foeexpp"></b></div>
 				<div>Style = <b id="foestylep"></b></div>
 				<br>				
-				<div>HP.max = <b id="foehpp"></b></div>
+				<div>HP.max = <b id="foehppr"></b></div>
 				<div>HPcure = <b id="foehpcurep"></b></div>
-				<div>MP.max = <b id="foempp"></b></div>
+				<div>MP.max = <b id="foemppr"></b></div>
 				<div>MPcure = <b id="foempcurep"></b></div>
+				<div>M.P.P. = <b id="foemppp"></b></div>
 				<div>ATK/<b id="foeatkp"></b></div>
 				<div>DEF/<b id="foedefp"></b></div>
-				<div>ShootSpeed = <b id="foesspdp"></b></div>
+				<div>BulletSpeed = <b id="foesspdp"></b></div>
 				<div>ShootRate = <b id="foesratep"></b></div>
 				<div>ShootAccuracy = <b id="foeaccup"></b></div>
+				<div>ShootMPcost = <b id="foempusep"></b></div>
 				<div>SpecialSkill = <b id="foessp"></b></div>
+				<div>OnFloorHurt = <b id="foefloorpainp"></b></div>
 			</div>
 		</div>
 		<button type="button" onclick="hide_status()" style="position: absolute; top: 530px; left: 42.5%; font-size: 20px">Ready!(F6)</button>
