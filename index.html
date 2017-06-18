@@ -18,7 +18,7 @@
 
 <body style="font-family: 'Hall Fetica'">
 	<script name="ver">//-----------------------------------------------------
-		var ver = '2.2';
+		var ver = '2.21';
 		var udt = "0617: combo\n0617: HPP, and hp regain gets slower\n0617: background added!\n0616: 2 new weapons added!"
 	</script>
 
@@ -426,6 +426,7 @@
 					mancombo += 1;
 				}
 				else{
+					foehp -= 0.15 ;
 					console.log("foe::block");
 				}
 			}
@@ -437,6 +438,7 @@
 					foecombo +=1;
 				}
 				else{
+					manhp -= 0.15;
 					console.log("man::block");
 				}
 			}
@@ -614,6 +616,7 @@
 						<option value="standard">Standard</option>
 						<option value="sniper">Sniper</option>
 						<option value="machinegun">Machine gun</option>
+						<option value="gatling">Gatling Gun</option>
 					</select>
 			   		<br><br>
 			    </form>
@@ -645,6 +648,7 @@
 						<option value="standard">Standard</option>
 						<option value="sniper">Sniper</option>
 						<option value="machinegun">Machine gun</option>
+						<option value="gatling">Gatling Gun</option>
 					</select>
 			   		<br><br>
 			    </form>

@@ -2,17 +2,22 @@ function manstyledecide(manstyle){
 	switch(manstyle){
 		case "standard":
 			mansetstandard();
-			document.getElementById("manconfirmed").innerHTML = "done!";
+			document.getElementById("manconfirmed").innerHTML = "Standard? done!";
 			break;
 
 		case "sniper":
 			mansetsniper();
-			document.getElementById("manconfirmed").innerHTML = "done!";
+			document.getElementById("manconfirmed").innerHTML = "Sniper? done!";
 			break;
 
 		case "machinegun":
 			mansetmachinegun();
-			document.getElementById("manconfirmed").innerHTML = "done!";
+			document.getElementById("manconfirmed").innerHTML = "Machine Gun? done!";
+			break;
+
+		case "gatling":
+			mansetgatling();
+			document.getElementById("manconfirmed").innerHTML = "Gatling Gun? done!";
 			break;
 
 		default:
@@ -75,30 +80,56 @@ function mansetmachinegun() {
 			manshootvariance = 12;
 			manmpuse = 0.25;
 			mandef = 90;
-			manmaxmp = 666;
+			manmaxmp = 600;
 			manmpcure = 287;
 			manfloorpain = 0.35;
 			//mansskill = 0;
 			reinit();
 }
 
+function mansetgatling() {
+			manlv = 1;
+			manexp = 0;
+			manstyle = "Gatling Gun";
+			manatk = 87;
+			manmaxhp = 495;
+			manhpcure = 205;
+			manmppunish = 85;		
+			manshootspd = 300;
+			manshootrate = 65;
+			manshootvariance = 16;
+			manmpuse = 0.2;
+			mandef = 111;
+			manmaxmp = 610;
+			manmpcure = 245;
+			manfloorpain = 0.4;
+			//mansskill = 0;
+			reinit();
+}
 
 //======================FOE===========================================================================================================================
+
+
 function foestyledecide(foestyle){
 	switch(foestyle){
 		case "standard":
 			foesetstandard();
-			document.getElementById("foeconfirmed").innerHTML = "done!";
+			document.getElementById("foeconfirmed").innerHTML = "Standard? done!";
 			break;
 
 		case "sniper":
 			foesetsniper();
-			document.getElementById("foeconfirmed").innerHTML = "done!";
+			document.getElementById("foeconfirmed").innerHTML = "Sniper? done!";
 			break;
 
 		case "machinegun":
 			foesetmachinegun();
-			document.getElementById("foeconfirmed").innerHTML = "done!";
+			document.getElementById("foeconfirmed").innerHTML = "Machine Gun? done!";
+			break;
+
+		case "gatling":
+			foesetgatling();
+			document.getElementById("foeconfirmed").innerHTML = "Gatling Gun? done!";
 			break;
 
 		default:
@@ -114,7 +145,7 @@ function foesetstandard() {
 			foeatk = 500;
 			foemaxhp = 500;
 			foehpcure = 200;
-			foemppunish = 300;		
+			foemppunish = 100;		
 			foeshootspd = 400;
 			foeshootrate = 200;
 			foeshootvariance = 3;
@@ -135,7 +166,7 @@ function foesetsniper() {
 			foeatk = 4000;
 			foemaxhp = 420;
 			foehpcure = 230;
-			foemppunish = 230;		
+			foemppunish = 170;		
 			foeshootspd = 800;
 			foeshootrate = 1000;
 			foeshootvariance = 0;
@@ -152,18 +183,44 @@ function foesetmachinegun() {
 			foelv = 1;
 			foeexp = 0;
 			foestyle = "Machine Gun";
-			foeatk = 150;
+			foeatk = 125;
 			foemaxhp = 505;
 			foehpcure = 200;
-			foemppunish = 420;		
-			foeshootspd = 250;
+			foemppunish = 115;		
+			foeshootspd = 265;
 			foeshootrate = 100;
 			foeshootvariance = 12;
 			foempuse = 0.25;
 			foedef = 90;
-			foemaxmp = 666;
+			foemaxmp = 600;
 			foempcure = 287;
 			foefloorpain = 0.35;
 			//foesskill = 0;
 			reinit();
 }
+
+function foesetgatling() {
+			foelv = 1;
+			foeexp = 0;
+			foestyle = "Gatling Gun";
+			foeatk = 87;
+			foemaxhp = 495;
+			foehpcure = 205;
+			foemppunish = 85;		
+			foeshootspd = 300;
+			foeshootrate = 65;
+			foeshootvariance = 16;
+			foempuse = 0.15;
+			foedef = 111;
+			foemaxmp = 610;
+			foempcure = 245;
+			foefloorpain = 0.4;
+			//foesskill = 0;
+			reinit();
+}
+
+//======================FOE===========================================================================================================================
+
+
+
+
