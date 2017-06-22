@@ -26,8 +26,8 @@
 
 <body style="font-family: 'Hall Fetica','Hall Fetica+'" id="body">
 	<script name="ver">//-----------------------------------------------------
-		var ver = '2.5';
-		var udt = "0618: savedata system!!!\n0618: MPP = 150 if your mp = 0\n0617: combo\n0617: background added!\n0616: 2 new weapons added!"
+		var xver = '0.2';
+		var udt = "0619: engine?\n0618: start"
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
@@ -39,7 +39,10 @@
 		var hppunfontformat = {font: 'Hall Fetica', fontSize: '14px', fill: 'pink'};
 		var cbfontformat = {font: 'Hall Fetica', fontSize: '50px', fill: 'red'};
 
+		var gamewidth = 200000, gameheight = 10000;
 		var cancontrol = true;
+		var mancanshoot = true;
+		var distance = 0;
 		var maneffnum = 0; foeeffnum = 0;
 		var mancanthit = false; foecanthit = false;
 		var manplaymppunish, foeplaymppunish;
@@ -49,12 +52,12 @@
 		var mannskill1 = 0, mannskill2 = 0, mannskill3 = 0, mannskill4 = 0;
 		var foenskill1 = 0, foenskill2 = 0, foenskill3 = 0, foenskill4 = 0;
 
+		var launchVelocity = 0;
 
 
 
 		//personalize stuff
-		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foehpcure,manshootspd,foeshootspd,manshootvariance,manshootrate,foeshootrate ,foeshootvariance ,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill,manmpuse,foempuse,manmppunish,foemppunish,manfloorpain,foefloorpain, mannocombo, foenocombo, manplayed, foeplayed, manexhp, foeexhp, manexmp, foeexmp, manexmpcure, foeexmpcure,manexhpcure, foeexhpcure, manexatk, foeexatk, manexdef, foeexdef,manexshootrate,foeexshootrate,manexshootspd, foeexshootspd,manexmpuse,foeexmpuse; 
-
+		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foehpcure,manshootspd,foeshootspd,manshootvariance,manshootrate,foeshootrate ,foeshootvariance ,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill,manmpuse,foempuse,manmppunish,foemppunish,manfloorpain,foefloorpain, mannocombo, foenocombo, manplayed, foeplayed; 
 		function init(){//startup once
 			manname = 'p1';
 			manlv = 1;
@@ -62,57 +65,38 @@
 			manplayed = 0;
 			manstyle = "Standard";		
 			manatk = 500;
-			manexatk = 0;
 			manfloorpain = 0.2;
 			manmaxhp = 500;
-			manexhp = 0;
 			manhpcure = 200;
-			manexhpcure = 0;
 			manmppunish = 300;
 			manshootspd = 400;
-			manexshootspd = 0;
 			manshootrate = 200;
-			manexshootrate = 0;
 			manshootvariance = 3;
 			manmpuse = 0.3;
-			manexmpuse = 0;
 			mandef = 100;
-			manexatk = 0;
 			manmaxmp = 500;
-			manexmp = 0;
 			manmpcure = 200;
-			manexmpcure = 0;
 			mansskill = 0;
 
-			foename = 'p1';
+			foename = 'p2';
 			foelv = 1;
 			foeexp = 0;
 			foeplayed = 0;
-			foestyle = "Standard";		
+			foestyle = "Standard";	
 			foeatk = 500;
-			foeexatk = 0;
 			foefloorpain = 0.2;
 			foemaxhp = 500;
-			foeexhp = 0;
 			foehpcure = 200;
-			foeexhpcure = 0;
 			foemppunish = 300;
 			foeshootspd = 400;
-			foeexshootspd = 0;
 			foeshootrate = 200;
-			foeexshootrate = 0;
 			foeshootvariance = 3;
 			foempuse = 0.3;
-			foeexmpuse = 0;
 			foedef = 100;
-			foeexatk = 0;
 			foemaxmp = 500;
-			foeexmp = 0;
 			foempcure = 200;
-			foeexmpcure = 0;
-			foesskill = 0;
+			foesskill = 0; 
 		}
-
 
 		function reinit(){
 			manhp = manmaxhp; foehp = foemaxhp;
@@ -153,6 +137,7 @@
     			game.load.image('ggbg','asset/ggbg.png');
     			game.load.image('background','asset/fpbackground.png'); 
       		    game.load.image('ground','asset/fpground.png'); 
+      		    game.load.spritesheet('arrow', 'asset/1p/longarrow2.png');
 
     			var progressText = game.add.text(game.world.centerX, game.world.centerY, '0%', {
    					fontSize: '60px',
@@ -178,7 +163,7 @@
 				var btn = game.add.button(300,170,'play-icon',function(){game.state.start('play');});
 				btn.anchor.setTo(0.5,0);
 
-				game.add.text(0, 0, 'V.' + ver ,{fontSize:'18px', font:'Hall Fetica'});
+				game.add.text(0, 0, 'X.' + xver ,{fontSize:'18px', font:'Hall Fetica'});
 				game.add.text(0,19, udt, {fontSize:'14px', font:'Hall Fetica'});
 				game.add.text(648, 0, "DATABASE V." + savever, {fontSize:'18px', font:'Hall Fetica'}).anchor.setTo(1,0);
 			}
@@ -195,84 +180,60 @@
 			this.create = function(){
 				gamestarted = true;
 				//floor, bg
-				var bg = game.add.tileSprite(0, -80, game.width, game.height, 'background'); 
-        		var ground = game.add.tileSprite(0, game.height-87, game.width, 112, 'ground'); 
-      		    bg.autoScroll(-10,0); 
-       			ground.autoScroll(-487,0); 
+				var bg = game.add.tileSprite(0, gameheight-505, gamewidth, gameheight, 'background'); 
+				game.world.setBounds(0, 0, gamewidth, gameheight);
+        		var ground = game.add.tileSprite(0, gameheight-40, gamewidth, gameheight, 'ground'); 
+      		   // bg.autoScroll(-10,0); 
+       			//ground.autoScroll(-487,0); 
 
        			//print name
        			this.printmanname = game.add.text(20, 3, manname ,{fontSize:'16px', font:'Hall Fetica', fontStyle:'italic'});
-       			this.printfoename = game.add.text(630, 3, foename ,{fontSize:'16px', font:'Hall Fetica', fontStyle:'italic'});
-       			this.printfoename.anchor.setTo(1,0);
 
 				//printhp
 				this.printmanhp = game.add.text(20, 20, manhp, hpfontformat);
 				this.printmanof = game.add.text(70, 20, '/', hpfontformat);
 				this.printmanmaxhp = game.add.text(90, 20, manmaxhp, hpfontformat);
-				this.printfoehp = game.add.text(560, 20, foehp, hpfontformat);
-				this.printfoehp.anchor.setTo(1,0);
-				this.printfoeof = game.add.text(580, 20, '/', hpfontformat);
-				this.printfoeof.anchor.setTo(1,0);
-				this.printfoemaxhp = game.add.text(630, 20, foemaxhp, hpfontformat);
-				this.printfoemaxhp.anchor.setTo(1,0);
 
 				//printmp
 				this.printmanmp = game.add.text(20, 50, manmp, mpfontformat);
 				this.printmanofm = game.add.text(55, 50, '/', mpfontformat);
 				this.printmanmaxmp = game.add.text(70, 50, manmaxmp, mpfontformat);
-				this.printfoemp = game.add.text(580, 50, foemp, mpfontformat);
-				this.printfoemp.anchor.setTo(1,0);
-				this.printfoeofm = game.add.text(600, 50, '/', mpfontformat);
-				this.printfoeofm.anchor.setTo(1,0);
-				this.printfoemaxmp = game.add.text(630, 50, foemaxmp, mpfontformat);
-				this.printfoemaxmp.anchor.setTo(1,0);
-
+				
 				//print combo!!
 				this.mancombos = game.add.text(65, 65, mancombo, cbfontformat);
 				this.manhits = game.add.text(20, 90, "Hits!!", {font: 'Hall Fetica', fontSize: '21px',fill:'red'});
-				this.foecombos = game.add.text(585, 65, foecombo, cbfontformat);
-				this.foecombos.anchor.setTo(1,0);
-				this.foehits = game.add.text(630, 90, "Hits!!", {font: 'Hall Fetica', fontSize: '21px',fill:'red'});
-				this.foehits.anchor.setTo(1,0);
 
 				//printpunish(pp)
 				this.printmanhppun = game.add.text(20, 130, "H.P.P.", hppunfontformat);
 				this.printmanmaxhppun = game.add.text(70, 130, manplayhpp, hppunfontformat);
-				this.printfoehppun = game.add.text(580, 130,"H.P.P. ", hppunfontformat);
-				this.printfoehppun.anchor.setTo(1,0);
-				this.printfoemaxhppun = game.add.text(630, 130, foeplayhpp, hppunfontformat);
-				this.printfoemaxhppun.anchor.setTo(1,0);
 
 				this.printmanmppun = game.add.text(20, 145, "M.P.P.", mppunfontformat);
 				this.printmanmaxmppun = game.add.text(70, 145, manplaymppunish, mppunfontformat);
-				this.printfoemppun = game.add.text(580, 145,"M.P.P. ", mppunfontformat);
-				this.printfoemppun.anchor.setTo(1,0);
-				this.printfoemaxmppun = game.add.text(630, 145, foeplaymppunish, mppunfontformat);
-				this.printfoemaxmppun.anchor.setTo(1,0);
 
-				//print effects
+				//print distance, speed
+				this.printdistance = game.add.text(300, 20, "0 m", {font: 'Hall Fetica', fontSize: '25px', fill:'black'});
+				this.printheight = game.add.text(300, 50, "0 m", {font: 'Hall Fetica', fontSize: '25px', fill:'black'});
+				this.printspeed = game.add.text(500, 20, "0 m/s", {font: 'Hall Fetica', fontSize: '40px', fill:'black'});
+				this.printheight.fixedToCamera = true;
+				this.printdistance.fixedToCamera = true;
+				this.printspeed.fixedToCamera = true;
+				//this.printdistance.cameraOffset.setTo(0,0.5);
 
+				
 
-				/*//print skill
-				this.printmanskl = game.add.text(22, 70, skills[mansskill], sklfontformat);
-				*/
-
-				//graph & gravity
-				this.man = game.add.sprite(50, 150, 'man');
+				//man graph & gravity
+				this.man = game.add.sprite(0, gameheight, 'man');
 				this.man.animations.add('goright', [0, 1, 2], 10, true);
 				this.man.animations.add('goleft',[3, 4, 5], 10, true);
     		    this.man.animations.play('goright');
 				game.physics.arcade.enable(this.man, Phaser.Physics.P2);
 				this.man.body.collideWorldBounds = true;
 				this.man.body.gravity.y = 490;
+				this.man.body.bounce.setTo(0.8, 0.8);
+				game.camera.follow(this.man);
 
-				this.foe = game.add.sprite(550, 150, 'foe');
-    			this.foe.animations.add('fgoright', [0, 1, 2], 10, true);
-				this.foe.animations.add('fgoleft',[3, 4, 5], 10, true);
-    		    this.foe.animations.play('fgoleft');
-				game.physics.arcade.enable(this.foe, Phaser.Physics.P2);
-				this.foe.body.collideWorldBounds = true;
-				this.foe.body.gravity.y = 490;
+
+				this.arrow = game.add.sprite(0, gameheight - 30, 'arrow');
 
 				//input
 				cursors = game.input.keyboard.createCursorKeys();
@@ -307,58 +268,53 @@
   			     //   track the player, offset  horizontally, vertically
   			     this.weaponm.trackSprite(this.man, 14, 15);
   			   //  game.physics.arcade.enable(this.weaponm, Phaser.Physics.P2);
-  				
-  			     this.weaponf = game.add.weapon(200, 'bullet2');
-  			     this.weaponf.fireAngle = 180;
-  			     this.weaponf.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-  			     this.weaponf.bulletAngleOffset = 0;
-  			     this.weaponf.bulletSpeed = foeshootspd;
-  			     this.weaponf.fireRate = foeshootrate;
-  			     this.weaponf.bulletAngleVariance = foeshootvariance;
-  			     this.weaponf.trackSprite(this.foe, 14, 15);
-  			     game.physics.arcade.enable(this.weaponf, Phaser.Physics.P2);
+
 			}
 
 
 			this.update = function(){
-				this.man.body.velocity.x = 0;
-				this.foe.body.velocity.x = 0;
-				game.physics.arcade.collide(this.man, this.foe, this.mfcrash);
-				game.physics.arcade.overlap(this.weaponm.bullets, this.foe, this.foehitweaponm);
-				game.physics.arcade.overlap(this.weaponf.bullets, this.man, this.manhitweaponf);
-
-				//pause
-				if (spacebar.isDown) {this.pause();}
-
-				//floorpain
-				if(this.man.body.onFloor()==true){manhp -= manfloorpain; manplaymppunish = manmppunish;}
-				if(this.foe.body.onFloor()==true){foehp -= foefloorpain; foeplaymppunish = foemppunish;}
+				//floor
+				if(this.man.body.onFloor()==true){
+					if(this.man.body.velocity.x >= 1){
+						this.man.body.velocity.x *= 0.87;
+					}
+					else{
+						this.man.body.velocity.x = 0;
+					}
+				/*manhp -= manfloorpain; manplaymppunish = manmppunish;*/
+				}
+				else{
+					this.man.body.velocity.x *= 0.9995 ;
+				}
+				
 
 				//gg and print
 				if(manhp<0){manhp = 0;}
 			    if(foehp<0){foehp = 0;}
 
 			    this.printmanhp.text = Math.floor(manhp);
-			    this.printfoehp.text = Math.floor(foehp);
+			    //this.printfoehp.text = Math.floor(foehp);
 				if(manhp > 0){}
 					else if(foehp > 0 && manhp == 0){this.foewin();}
 
-				if(foehp > 0){}
-					else if(manhp > 0 && foehp == 0){this.manwin();}
+				//if(foehp > 0){}
+				//	else if(manhp > 0 && foehp == 0){this.manwin();}
 
 				this.printmanmp.text = Math.floor(manmp);
-				this.printfoemp.text = Math.floor(foemp);
+				//this.printfoemp.text = Math.floor(foemp);
+
+				this.printdistance.text = Math.floor(this.man.body.x) + " m";
+				this.printheight.text = Math.floor(gameheight - this.man.body.y -24) + 'm';
+			this.printspeed.text = Math.floor(Math.sqrt(Math.pow(this.man.body.velocity.x + this.man.body.velocity.y , 2))-3) ;
 
 				//punish kill and revive
 				if(manplaymppunish > 0){this.printmanmaxmppun.text = Math.floor(manplaymppunish);this.printmanmppun.revive();this.printmanmaxmppun.revive();}
 					else{this.printmanmppun.kill();this.printmanmaxmppun.kill();}
-				if(foeplaymppunish > 0){this.printfoemaxmppun.text = Math.floor(foeplaymppunish);this.printfoemppun.revive();this.printfoemaxmppun.revive();}
-					else{this.printfoemppun.kill();this.printfoemaxmppun.kill();}
+				
 
 				if(manplayhpp > 0){this.printmanmaxhppun.text = Math.floor(manplayhpp);this.printmanhppun.revive();this.printmanmaxhppun.revive();}
 					else{this.printmanhppun.kill();this.printmanmaxhppun.kill();}
-				if(foeplayhpp > 0){this.printfoemaxhppun.text = Math.floor(foeplayhpp);this.printfoehppun.revive();this.printfoemaxhppun.revive();}
-					else{this.printfoehppun.kill();this.printfoemaxhppun.kill();}
+				
 
 				manplaymppunish -= 1.5; foeplaymppunish -= 1.5;
 				manplayhpp -= 1.5; foeplayhpp -= 1.5;
@@ -369,183 +325,69 @@
 				if(mannocombo <3){this.mancombos.text = Math.floor(mancombo);this.mancombos.revive();this.manhits.revive();}	
 					else if(mannocombo >= 3){mancombo = 0; mancbtmp = 0;this.mancombos.kill();this.manhits.kill();}
 
-				if(foecbtmp != foecombo){foecbtmp = foecombo; foenocombo = 0;}
-					else{foenocombo+=0.015;}
-				if(foenocombo <3){this.foecombos.text = Math.floor(foecombo);this.foecombos.revive();this.foehits.revive();}		
-					else if(foenocombo >= 3){foecombo = 0;foecbtmp = 0;this.foecombos.kill();this.foehits.kill();}
-
 
 				//move p1 man
-				if (manleft.isDown){
+		if(1==2){
+				if (manleft.isDown || cursors.left.isDown){
 					this.man.body.velocity.x = -250; 
 					this.man.animations.play('goleft');
 					this.weaponm.fireAngle = 180;
 				}
-   					else if(manright.isDown){this.man.body.velocity.x = 250; 
+   					else if(manright.isDown || cursors.right.isDown){this.man.body.velocity.x = 250; 
    						this.man.animations.play('goright');
    						this.weaponm.fireAngle = 0;
    					}
-   			    if (manjump.isDown) {this.man.body.velocity.y = -300;}	
-   			    	else if(mandown.isDown){this.man.body.velocity.y = 500;}
+   			    if (manjump.isDown || cursors.up.isDown) {
+   			    	this.man.body.velocity.y = -300;
+					game.add.tween(this.man).to({angle:-30}, 100, null, true, 0, 0, true);
+
+   			    }	
+   			    	else if(mandown.isDown || cursors.down.isDown){
+   			    		this.man.body.velocity.y = 300;
+   			    		game.add.tween(this.man).to({angle:60}, 100, null, true, 0, 0, false);
+   			    	}
+ 		}
+   			    	
 
 				//move p2(foe)
-				if (cursors.left.isDown){
-					this.foe.body.velocity.x = -250; 
-					this.foe.animations.play('fgoleft');
-					this.weaponf.fireAngle = 180;}
-   					else if(cursors.right.isDown){
-   						this.foe.body.velocity.x = 250; 
-   						this.foe.animations.play('fgoright');
-   						this.weaponf.fireAngle = 0;
-   					}
-   			    if (cursors.up.isDown) {this.foe.body.velocity.y = -300; }
-   			    	else if(cursors.down.isDown){this.foe.body.velocity.y = 500;}
 
    			    //sudden death!!!!!!!
    			    if(manhp == 0 && foehp == 0){this.suddendeath();}
 
    			    //if mp<1...
    			    if(manmp <= 0 && manmpdrained == false){manplaymppunish = 150; manmpdrained = true;}
-   			    if(foemp <= 0 && foempdrained == false){foeplaymppunish = 150; foempdrained = true;}
+   			    //if(foemp <= 0 && foempdrained == false){foeplaymppunish = 150; foempdrained = true;}
    			    if(manplaymppunish <= 0 && manmpdrained == true){manmpdrained = false;}
-   			    if(foeplaymppunish <= 0 && foempdrained == true){foempdrained = false;}
+   			   // if(foeplaymppunish <= 0 && foempdrained == true){foempdrained = false;}
 
    			    //mp+hp regain
    			    if(manhp < manmaxhp && manplayhpp<=0){
    			    	manhp += manhpcure / 15000;
    			    }
-   			    if(foehp < foemaxhp && foeplayhpp<=0){
-   			      	foehp += foehpcure / 15000;
-   			    }
+   			  //  if(foehp < foemaxhp && foeplayhpp<=0){
+   			  //    	foehp += foehpcure / 15000;
+   			  //  }
 
    			    if(manmp < manmaxmp && manplaymppunish<=0){
    			    	manmp += manmpcure / 10000;
    			    }
-   			    if(foemp < foemaxmp && foeplaymppunish<=0){
-   			    	foemp += foempcure / 10000;
-   			    }
 
 
    			    //attack!!
-   			    if(manatkkey.isDown && manmp>0){this.weaponm.fire(); manmp-=manmpuse; manmpregain = 0;}
+   			    if((manatkkey.isDown || enter.isDown) && mancanshoot == true && manmp>0){this.weaponm.fire(); manmp-=manmpuse; manmpregain = 0;}
    			    	else if(manmp <= 0){manmp = 0;}
-   			    if(enter.isDown && foemp>0){this.weaponf.fire(); foemp-=foempuse; foempregain = 0;}
-   			    	else if(foemp <= 0){foemp = 0;}
+   			    
 
    			    //special attack!!
 
+   			    //launch
+   			    ;
 			}
 
-			//-------------------------------------------------------------------------------------------
-
-			this.pause = function(){
-				pausebg = game.add.image(0,0,'ggbg');
-				pausetext = game.add.text(325, 50, "PAUSED", {font: 'Hall Fetica', fontSize: '55px', fill: 'white'});
-				pausetext.anchor.setTo(0.5,0.5);
-				pauseclick = game.add.text(325, 420, "Click to continue...", {font: 'Hall Fetica', fontSize: '16px', fill: 'white'});
-				pauseclick.anchor.setTo(0.5,0.5);
-				game.paused = true;
-				game.input.onDown.add(unpause, self);
-
-				function unpause(event){
-					game.paused = false;
-					pausebg.destroy();
-					pausetext.destroy();
-					pauseclick.destroy();
-				}
-			}
-
-			this.printmaneff = function(effect , style, time){
-				//this.printmanmppun = game.add.text(22, 80, "M.P.P.", mppunfontformat);
-			}
-
-			this.mfcrash = function(){
-				manhp-=6;
-				foehp-=6;
-				mancombo += 1;
-				foecombo += 1;
-			}
-
-			this.foehitweaponm = function(){
-				if(manatk>foedef){
-					foehp -= manatk/100 - foedef/100;
-					foeplaymppunish = foemppunish;
-					mancombo += 1;
-				}
-				else{
-					foehp -= 0.1;
-					console.log("foe::block");
-					mancombo += 1;
-				}
-			}
-
-			this.manhitweaponf = function(){
-				if(foeatk>mandef){
-					manhp -= foeatk/100 - mandef/100;
-					manplaymppunish = manmppunish;
-					foecombo +=1;
-				}
-				else{
-					manhp -= 0.1;
-					console.log("man::block");
-					foecombo += 1;
-				}
-			}
-
-			this.foewin = function(){
-				manhp = 0;
-				this.printmanhp.text = 0;
-				this.ggbox(foename);
-			}
-
-			this.manwin = function(){
-				foehp = 0;
-				this.printfoehp.text = 0;
-				this.ggbox(manname);
-			}
-
-			this.suddendeath = function(){
-				var sdthing = "Wow! You guys are on fire!\n Now, let's start the final face off\n\nClick to rush!"
-				game.add.image(0,0,'ggbg');
-				sdtxt = game.add.text(325, 50, 'SUDDEN DEATH', {font: 'Hall Fetica', fontSize: '55px', fill: 'white'});
-				sdtxt.anchor.setTo(0.5,0.5);
-				
-				clicksd = game.add.text(325, 225, sdthing , {font: 'Hall Fetica', fontSize: '16px', fill: 'white'});
-				clicksd.anchor.setTo(0.5,0.5);
-
-				game.paused = true;				
-				game.input.onDown.add(unpause, self);
-
-				manhp = 1; foehp = 1;
-				manmp = 1; foemp = 1;
-				mancombo = 0; foecombo = 0; mancbtmp = 0; foecbtmp = 0;
-				mannocombo = 3; foenocombo = 3;
-				manplayhpp = 1000000; foeplayhpp = 1000000;
-				manplaymppunish = 500; foeplaymppunish = 500;
-
-				function unpause(event){
-					game.paused = false;
-					game.state.start('play');
-				}
+			this.launch = function(){
 
 			}
 
-			this.ggbox = function(winner){
-				game.add.image(0,0,'ggbg');
-				winnertxt = game.add.text(325, 50, winner + ' WON!', {font: 'Hall Fetica', fontSize: '55px', fill: 'white', wordWrap: true,  wordWrapWidth: 600});
-				winnertxt.anchor.setTo(0.5, 0);
-				clickgg = game.add.text(325, 420, "Click to continue...", {font: 'Hall Fetica', fontSize: '16px', fill: 'white'});
-				clickgg.anchor.setTo(0.5,0.5);
-
-				game.paused = true;
-				game.input.onDown.add(unpause, self);
-
-				function unpause(event){
-					game.paused = false;
-					reinit();
-					game.state.start('menu');
-				}
-			}
 
 		}
 
@@ -560,13 +402,13 @@
 <!-- =============================================================================================================================================== -->
 
 	<h2 style="font-family: 'Hall Fetica','微軟正黑體'">
-		接西.io 糞game : Flappy Battle 
+		接西.io 糞game : Flappy Battle <b style="color: red">1P</b> 
 		<button type="button" onclick="destroy_save()" style="top: -5px">DESTROY SAVEDATA</button>
 	</h2>
 
 
 	<script name="show...">
-				function show_personalize(){
+		function show_personalize(){
 			if (gamestarted == false){
 				$('#personalize').fadeIn(300);
 				game.paused = true;
@@ -613,21 +455,10 @@
 		function hide_personalize(){
 			$('#personalize').fadeOut(300);
 			manfout();
-			foefout();
 			reinit();
 			game.paused = false;
 		}
 
-		function foesaveconfirm(){
-
-		}
-
-		function foeconfirm(){
-			var foeform = document.getElementById("foeform");
-			foename = foeform.foename.value;
-			foestyledecide(foeform.foestyle.value);
-			foefout();
-		}
 	</script>
 
 	<div id="personalize" style="background: rgba(102,255,102,0.9); z-index: 87;position: absolute; top: 0; left: 0; height: 100%; width: 100%; display: none;">
@@ -647,7 +478,7 @@
 					<b id="manpickconfirmed"></b>
 				</div>
 				<br><br>
-				
+
 				<div id="manifnot">
 					<b> &nbsp&nbsp&nbsp If not, fill in the blanks below... &nbsp&nbsp&nbsp</b><br><br>
 
@@ -669,51 +500,6 @@
 
 				<button type="button" name="manok" onclick="manconfirm()">I'm done!</button>
 				<b id="manconfirmed"></b>
-		</div>
-
-	<!-- ------------------------------------------------------------------------------------------------ -->
-		<div id="psl_bar" style="position: absolute;left: 47%; height: 100%; top:0; background: black;">|</div>
-	<!-- ------------------------------------------------------------------------------------------------ -->	
-
-		<div id="foepersonalize" style="position: absolute;text-align: right ;left: 53%; right: 1%;height: 87%;">
-			<div style="font-size: 45px; text-align: center;"><img src="asset/bird2X.png" style="text-align: center">P2</div>
-				<br>
-				<yis>If you have a save data, paste it here!</yis>
-				<textarea id="foesave" style=" white-space: nowrap; overflow: hidden; resize:none;height: 16px"></textarea>
-				<button type="button" name="foeok" onclick="foesaveconfirm()">Submit!</button>
-				<br><br>
-				
-				<yis>Or if you're a local, click here!</yis>
-				<button id="foelocalbt" type="button" name="foelocal" onclick="fin('foe')">LOCAL</button>
-
-				<div id="foepick" style="top: 0px; left: 0; right: 100%;text-align: left; display: none;background: rgba(255,102,102,0.9);">
-					<button type="button" name="foepickdone" onclick="finfin('foe')">This One!</button>
-					<b id="foepickconfirmed"></b>
-				</div>
-
-				<br><br>
-
-				<div id="foeifnot">
-					<b> &nbsp&nbsp&nbsp If not, fill in the blanks below... &nbsp&nbsp&nbsp</b><br><br>
-
-					<form id="foeform">
-						<yis>Your name = </yis>
-						<input type="text" name="foename">
-						<br><br>
-	
-						<yis>Your style = </yis>
-						<select name="foestyle">
-							<option value="standard">Standard</option>
-							<option value="sniper">Sniper</option>
-							<option value="machinegun">Machine gun</option>
-							<option value="gatling">Gatling Gun</option>
-						</select>
-			   		<br><br>
-			    	</form>
-			    </div>
-
-			    <button type="button" name="manok" onclick="foeconfirm()">I'm done!</button>
-			    <b id="foeconfirmed"></b>
 		</div>
 
 		<button type="button" onclick="hide_personalize()" style="position: absolute; top: 530px; left: 42.5%; font-size: 20px">Ready!(F2)</button>
@@ -744,24 +530,6 @@
 			document.getElementById("manmppp").innerHTML = manmppunish;
 			document.getElementById("manmpusep").innerHTML = manmpuse;
 			document.getElementById("manfloorpainp").innerHTML = manfloorpain;
-
-			document.getElementById("foenmp").innerHTML = foename;
-			document.getElementById("foehppr").innerHTML = foemaxhp;
-			document.getElementById("foemppr").innerHTML = foemaxmp;
-			document.getElementById("foelvp").innerHTML = foelv;
-			document.getElementById("foeexpp").innerHTML = foeexp;
-			document.getElementById("foestylep").innerHTML = foestyle;		
-			document.getElementById("foeatkp").innerHTML = foeatk;
-			document.getElementById("foehpcurep").innerHTML = foehpcure;
-			document.getElementById("foesspdp").innerHTML = foeshootspd;
-			document.getElementById("foedefp").innerHTML = foedef;
-			document.getElementById("foempcurep").innerHTML = foempcure;
-			document.getElementById("foessp").innerHTML = foesskill;
-			document.getElementById("foeaccup").innerHTML = "-" + foeshootvariance;
-			document.getElementById("foesratep").innerHTML = foeshootrate;
-			document.getElementById("foemppp").innerHTML = foemppunish;
-			document.getElementById("foempusep").innerHTML = foempuse;
-			document.getElementById("foefloorpainp").innerHTML = foefloorpain;
 		}
 	
 	</script>
@@ -788,33 +556,6 @@
 				<div>SpecialSkill = <b id="manssp"></b></div>
 				<div>OnFloorHurt = <b id="manfloorpainp"></b></div>
 			</div>	
-		</div>
-	<!-- ------------------------------------------------------------------------------------------------ -->
-		<div id="psl_bar" style="position: absolute;left: 47%; height: 100%; top:0; background: black;">|</div>
-	<!-- ------------------------------------------------------------------------------------------------ -->
-
-		<div id="foestatus" style="position: absolute;text-align: center ;left: 53%; right: 1%;height: 87%; font-size: 24px">
-			<div style="font-size: 45px; text-align: center;"><img src="asset/bird2X.png" style="text-align: center">P2</div>
-			<div>
-				<div>Name = <b id="foenmp"></b></div>
-				<div>Lv. <b id="foelvp"></b></div>
-				<div>exp = <b id="foeexpp"></b></div>
-				<div>Style = <b id="foestylep"></b></div>
-				<br>				
-				<div>HP.max = <b id="foehppr"></b></div>
-				<div>HPcure = <b id="foehpcurep"></b></div>
-				<div>MP.max = <b id="foemppr"></b></div>
-				<div>MPcure = <b id="foempcurep"></b></div>
-				<div>M.P.P. = <b id="foemppp"></b></div>
-				<div>ATK/<b id="foeatkp"></b></div>
-				<div>DEF/<b id="foedefp"></b></div>
-				<div>BulletSpeed = <b id="foesspdp"></b></div>
-				<div>ShootRate = <b id="foesratep"></b></div>
-				<div>ShootAccuracy = <b id="foeaccup"></b></div>
-				<div>ShootMPcost = <b id="foempusep"></b></div>
-				<div>SpecialSkill = <b id="foessp"></b></div>
-				<div>OnFloorHurt = <b id="foefloorpainp"></b></div>
-			</div>
 		</div>
 		<button type="button" onclick="hide_status()" style="position: absolute; top: 530px; left: 42.5%; font-size: 20px">Ready!(F6)</button>
 	</div>

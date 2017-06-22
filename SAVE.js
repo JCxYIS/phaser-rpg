@@ -1,5 +1,8 @@
 //CHROME:
 //%LocalAppData%\Google\Chrome\User Data\Default\Local Storage\
+
+var savever = 2;
+
 function visit(){
 	if(localStorage.visited!= null ){
 		visited = Number(localStorage.visited);
@@ -18,91 +21,118 @@ function destroy_save(){
 
 function manfout(){
 	localStorage.setItem(manname,
-		ver + "VER" +
-		manlv + "JC%811%YIS" +
-		manexp + "JC%811%YIS" +
-		manplayed + "JC%811%YIS" +
-		manstyle + "JC%811%YIS" +
-		manatk + "JC%811%YIS" +
-		manfloorpain + "JC%811%YIS" +
-		manmaxhp + "JC%811%YIS" +
-		manhpcure + "JC%811%YIS" +
-		manmppunish + "JC%811%YIS" +
-		manshootspd + "JC%811%YIS" +
-		manshootrate + "JC%811%YIS" +
-		manshootvariance + "JC%811%YIS" +
-		manmpuse + "JC%811%YIS" +
-		mandef + "JC%811%YIS" +
-		manmaxmp + "JC%811%YIS" +
-		manmpcure + "JC%811%YIS" +
-		mansskill
+		savever + "JC%811%YIS" +   //0
+		manname + "JC%811%YIS" +   //1
+		manlv + "JC%811%YIS" +     //2
+		manexp + "JC%811%YIS" +    //3
+		manplayed + "JC%811%YIS" + //4
+		manstyle + "JC%811%YIS" +  //5
+		manexatk + "JC%811%YIS" +    //6
+		manexhp + "JC%811%YIS" +    //7
+		manexhpcure + "JC%811%YIS" +   //8
+		manexmppunish + "JC%811%YIS" +  //9
+		manexshootspd + "JC%811%YIS" +  //10
+		manexshootrate + "JC%811%YIS" +  //11
+		manexmpuse + "JC%811%YIS" +  //12
+		manexdef + "JC%811%YIS" +	   //13
+		manexmaxmp + "JC%811%YIS" +  //14
+		manexmpcure + "JC%811%YIS" + //15
+		mansskill + "JC%811%YIS" + //16
+		mannskill1 + "JC%811%YIS" + //17
+		mannskill2 + "JC%811%YIS" + //18
+		mannskill3 + "JC%811%YIS" + //19
+		mannskill4					//20
 	);	
 }
 
 function foefout(){
 	localStorage.setItem(foename,
-		ver + "VER" +
-		foelv + "JC%811%YIS" +
-		foeexp + "JC%811%YIS" +
-		foeplayed + "JC%811%YIS" +
-		foestyle + "JC%811%YIS" +
-		foeatk + "JC%811%YIS" +
-		foefloorpain + "JC%811%YIS" +
-		foemaxhp + "JC%811%YIS" +
-		foehpcure + "JC%811%YIS" +
-		foemppunish + "JC%811%YIS" +
-		foeshootspd + "JC%811%YIS" +
-		foeshootrate + "JC%811%YIS" +
-		foeshootvariance + "JC%811%YIS" +
-		foempuse + "JC%811%YIS" +
-		foedef + "JC%811%YIS" +
-		foemaxmp + "JC%811%YIS" +
-		foempcure + "JC%811%YIS" +
-		foesskill
+		savever + "JC%811%YIS" +   //0
+		foename + "JC%811%YIS" +   //1
+		foelv + "JC%811%YIS" +     //2
+		foeexp + "JC%811%YIS" +    //3
+		foeplayed + "JC%811%YIS" + //4
+		foestyle + "JC%811%YIS" +  //5
+		foeexatk + "JC%811%YIS" +    //6
+		foeexhp + "JC%811%YIS" +    //7
+		foeexhpcure + "JC%811%YIS" +   //8
+		foeexmppunish + "JC%811%YIS" +  //9
+		foeexshootspd + "JC%811%YIS" +  //10
+		foeexshootrate + "JC%811%YIS" +  //11
+		foeexmpuse + "JC%811%YIS" +  //12
+		foeexdef + "JC%811%YIS" +	   //13
+		foeexmaxmp + "JC%811%YIS" +  //14
+		foeexmpcure + "JC%811%YIS" + //15
+		foesskill + "JC%811%YIS" + //16
+		foenskill1 + "JC%811%YIS" + //17
+		foenskill2 + "JC%811%YIS" + //18
+		foenskill3 + "JC%811%YIS" + //19
+		foenskill4					//20
 	);	
 }
 
-function finfin(player, key){
+var key;
+function finfin(player){
 		if(player == "man"){
-			key.split("JC%811%YIS");
-			manlv = key[0]
-			manexp = key[1]
-			manplayed = key[2]
-			manstyle = key[3]
-			manatk = key[4]
-			manfloorpain = key[5]
-			manmaxhp = key[6]
-			manhpcure = key[7]
-			manmppunish = key[8]
-			manshootspd = key[9]
-			manshootrate = key[10]
-			manshootvariance = key[11]
-			manmpuse = key[12]
-			mandef = key[13]
-			manmaxmp = key[14]
-			manmpcure = key[15]
-			mansskill = key[16]
+			key = $('input[name=man]:checked').val();
+			var key = key.split("JC%811%YIS");
+				//console.log(key);
+				// for(var i=0; i<=16;i+=1){
+					// console.log(key[i]);
+				// }
+			
+			manname = Number(key[1])   //1
+			manlv = Number(key[2])     //2
+			manexp = Number(key[3])    //3
+			manplayed = Number(key[4]) //4
+			manstyle = Number(key[5])  //5
+			manexatk = Number(key[6])    //6
+			manexhp = Number(key[7])    //7
+			manexhpcure = Number(key[8])   //8
+			manexmppunish = Number(key[9])  //9
+			manexshootspd = Number(key[10])  //10
+			manexshootrate = Number(key[11])  //11
+			manexmpuse = Number(key[12])  //12
+			manexdef = Number(key[13])	   //13
+			manexmaxmp = Number(key[14])  //14
+			manexmpcure = Number(key[15]) //15
+			mansskill = Number(key[16]) //16
+			mannskill1 = Number(key[17]) //17
+			mannskill2 = Number(key[18]) //18
+			mannskill3 = Number(key[19]) //19
+			mannskill4 = Number(key[20])	//20
+			document.getElementById("manpickconfirmed").innerHTML = "OK!";
 		}
-		
+
 		if(player == "foe"){
-			key.split("JC%811%YIS");
-			foelv = key[0]
-			foeexp = key[1]
-			foeplayed = key[2]
-			foestyle = key[3]
-			foeatk = key[4]
-			foefloorpain = key[5]
-			foemaxhp = key[6]
-			foehpcure = key[7]
-			foemppunish = key[8]
-			foeshootspd = key[9]
-			foeshootrate = key[10]
-			foeshootvariance = key[11]
-			foempuse = key[12]
-			foedef = key[13]
-			foemaxmp = key[14]
-			foempcure = key[15]
-			foesskill = key[16]
+			key = $('input[name=foe]:checked').val();
+			var key = key.split("JC%811%YIS");
+				//console.log(key);
+				// for(var i=0; i<=16;i+=1){
+					// console.log(key[i]);
+				// }
+			
+			foename = Number(key[1])   //1
+			foelv = Number(key[2])     //2
+			foeexp = Number(key[3])    //3
+			foeplayed = Number(key[4]) //4
+			foestyle = Number(key[5])  //5
+			foeexatk = Number(key[6])    //6
+			foeexhp = Number(key[7])    //7
+			foeexhpcure = Number(key[8])   //8
+			foeexmppunish = Number(key[9])  //9
+			foeexshootspd = Number(key[10])  //10
+			foeexshootrate = Number(key[11])  //11
+			foeexmpuse = Number(key[12])  //12
+			foeexdef = Number(key[13])	   //13
+			foeexmaxmp = Number(key[14])  //14
+			foeexmpcure = Number(key[15]) //15
+			foesskill = Number(key[16]) //16
+			foenskill1 = Number(key[17]) //17
+			foenskill2 = Number(key[18]) //18
+			foenskill3 = Number(key[19]) //19
+			foenskill4 = Number(key[20])	//20
+			document.getElementById("foepickconfirmed").innerHTML = "OK!";
 		}
 	}
 
@@ -112,9 +142,9 @@ function fin(player){
 	 
 	for(var i=0, len=localStorage.length; i<len; i++) {
     	var key = localStorage.key(i);
-    	var value = localStorage[key];
+        var value = localStorage[key];
     	if(key != "visited"){
-    		document.getElementById(player + "pick").innerHTML += '<input  type="radio" name="' + player + '" value="' + key +'">' + key + "<br>";
+    		document.getElementById(player + "pick").innerHTML += '<input  type="radio" name="' + player + '" value="' + value +'">' + key + "<br>";
     	}
     	//console.log(key + " => " + value);
 	}
@@ -122,5 +152,7 @@ function fin(player){
 
 	document.getElementById(player + "pick").innerHTML += '</form>';
 	$("#"+player+"pick").slideDown(300);
+	$("#"+player+"localbt").fadeOut(300);
+	$("#"+player+"ifnot").fadeOut(300);
 	
 }
