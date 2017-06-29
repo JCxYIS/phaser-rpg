@@ -7,6 +7,7 @@
 	<script src="phaser.min-2.7.7.js"></script>
     <script src="gameskills.js"></script>
     <script src="SAVE.js"></script>
+    <script src="Phaser.HealthBar.js"></script>
 
     <style type="text/css">
 		@font-face  {
@@ -26,14 +27,14 @@
 
 <body style="font-family: 'Hall Fetica','Hall Fetica+'" id="body">
 	<script name="ver">//-----------------------------------------------------
-		var ver = '2.5';
-		var udt = "0618: savedata system!!!\n0618: MPP = 150 if your mp = 0\n0617: combo\n0617: background added!\n0616: 2 new weapons added!"
+		var ver = '2.7';
+		var udt = "==NEWS== I'm working on a new game ^^\n0629: combo extra damage\n0623: HP & MP BAR\n0618: savedata system!!!\n0618: MPP = 150 if your mp = 0"
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
 	    var visited = 0;
 		var hpfontformat = {font: 'Hall Fetica', fontSize: '25px', fill:'black'} ;
-		var mpfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'blue'};
+		var mpfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'white'};
 		var sklfontformat = {font: 'Hall Fetica', fontSize: '16px', fill: 'purple'};
 		var mppunfontformat = {font: 'Hall Fetica', fontSize: '14px', fill: 'red'};
 		var hppunfontformat = {font: 'Hall Fetica', fontSize: '14px', fill: 'pink'};
@@ -52,7 +53,7 @@
 
 
 
-		//personalize stuff
+		//personalize stuff yee
 		var manname,foename,manlv,manexp,foelv,foeexp,manstyle,foestyle,manatk,foeatk,manmaxhp,manhp,manhpcure,foemaxhp,foehp,foehpcure,manshootspd,foeshootspd,manshootvariance,manshootrate,foeshootrate ,foeshootvariance ,mandef,foedef,manmaxmp,manmp,manmpcure,foemaxmp,foemp,foempcure,mansskill,foesskill,manmpuse,foempuse,manmppunish,foemppunish,manfloorpain,foefloorpain, mannocombo, foenocombo, manplayed, foeplayed, manexhp, foeexhp, manexmp, foeexmp, manexmpcure, foeexmpcure,manexhpcure, foeexhpcure, manexatk, foeexatk, manexdef, foeexdef,manexshootrate,foeexshootrate,manexshootspd, foeexshootspd,manexmpuse,foeexmpuse; 
 
 		function init(){//startup once
@@ -83,6 +84,7 @@
 			manmpcure = 200;
 			manexmpcure = 0;
 			mansskill = 0;
+			mancbexper = 1;
 
 			foename = 'p1';
 			foelv = 1;
@@ -111,6 +113,7 @@
 			foempcure = 200;
 			foeexmpcure = 0;
 			foesskill = 0;
+			foecbexper = 1;
 		}
 
 
@@ -120,6 +123,7 @@
 			manplaymppunish = 300; foeplaymppunish = 300;
 			manplayhpp = 300; foeplayhpp = 300;
 			mannocombo = 3; foenocombo = 3;
+			mancbex = 0; foecbex = 0;
 		}
 	init();
 	reinit();
@@ -206,9 +210,13 @@
        			this.printfoename.anchor.setTo(1,0);
 
 				//printhp
+				this.manhpbar = new HealthBar(game, {x: 20, y: 20, animationDuration: 1, width:200, height:28});
+				this.manhpbar.setAnchor(0,0);
 				this.printmanhp = game.add.text(20, 20, manhp, hpfontformat);
 				this.printmanof = game.add.text(70, 20, '/', hpfontformat);
 				this.printmanmaxhp = game.add.text(90, 20, manmaxhp, hpfontformat);
+				this.foehpbar = new HealthBar(game, {x: 630, y: 20, animationDuration: 1, width:200, height:26, flipped:true});
+				this.foehpbar.setAnchor(1,0);
 				this.printfoehp = game.add.text(560, 20, foehp, hpfontformat);
 				this.printfoehp.anchor.setTo(1,0);
 				this.printfoeof = game.add.text(580, 20, '/', hpfontformat);
@@ -217,6 +225,10 @@
 				this.printfoemaxhp.anchor.setTo(1,0);
 
 				//printmp
+				this.manmpbar = new HealthBar(game, {x: 20, y: 50, animationDuration: 1, width:120, height:18, bar: {color: "blue"}, bg: {color: "#ccd9ff"}, });
+				this.manmpbar.setAnchor(0,0);
+				this.foempbar = new HealthBar(game, {x: 630, y: 50, animationDuration: 1, width:120, height:18, bar: {color: "blue"}, bg: {color: "#ccd9ff"}, flipped: true});
+				this.foempbar.setAnchor(1,0);
 				this.printmanmp = game.add.text(20, 50, manmp, mpfontformat);
 				this.printmanofm = game.add.text(55, 50, '/', mpfontformat);
 				this.printmanmaxmp = game.add.text(70, 50, manmaxmp, mpfontformat);
@@ -234,6 +246,11 @@
 				this.foecombos.anchor.setTo(1,0);
 				this.foehits = game.add.text(630, 90, "Hits!!", {font: 'Hall Fetica', fontSize: '21px',fill:'red'});
 				this.foehits.anchor.setTo(1,0);
+
+				//print combo bonus
+				this.printmancbex = game.add.text(20, 110, "+" + mancombo*15 + "%", mppunfontformat);
+				this.printfoecbex = game.add.text(630, 110, "+" + foecombo*15 + "%", mppunfontformat);
+				this.printfoecbex.anchor.setTo(1,0);
 
 				//printpunish(pp)
 				this.printmanhppun = game.add.text(20, 130, "H.P.P.", hppunfontformat);
@@ -338,14 +355,18 @@
 				if(manhp<0){manhp = 0;}
 			    if(foehp<0){foehp = 0;}
 
+			    this.manhpbar.setPercent(manhp / manmaxhp * 100);
+			    this.foehpbar.setPercent(foehp / foemaxhp * 100);
 			    this.printmanhp.text = Math.floor(manhp);
 			    this.printfoehp.text = Math.floor(foehp);
-				if(manhp > 0){}
+				if(manhp > manmaxhp){manhp = manmaxhp;}
 					else if(foehp > 0 && manhp == 0){this.foewin();}
 
-				if(foehp > 0){}
+				if(foehp > foemaxhp){foehp = foemaxhp;}
 					else if(manhp > 0 && foehp == 0){this.manwin();}
 
+				this.manmpbar.setPercent(manmp / manmaxmp * 100);
+				this.foempbar.setPercent(foemp / foemaxmp * 100);
 				this.printmanmp.text = Math.floor(manmp);
 				this.printfoemp.text = Math.floor(foemp);
 
@@ -364,16 +385,50 @@
 				manplayhpp -= 1.5; foeplayhpp -= 1.5;
 
 				//combo kill and revive
-				if(mancbtmp != mancombo){ mancbtmp = mancombo; mannocombo = 0;}
+				if(mancbtmp != mancombo){
+					 mancbtmp = mancombo;
+					 mannocombo = 0;
+				}
 					else{mannocombo+=0.015;}
-				if(mannocombo <3){this.mancombos.text = Math.floor(mancombo);this.mancombos.revive();this.manhits.revive();}	
-					else if(mannocombo >= 3){mancombo = 0; mancbtmp = 0;this.mancombos.kill();this.manhits.kill();}
 
-				if(foecbtmp != foecombo){foecbtmp = foecombo; foenocombo = 0;}
+				if(mannocombo <3){
+					this.mancombos.text = Math.floor(mancombo);
+					this.mancombos.revive();
+					this.manhits.revive();
+					this.printmancbex.revive();
+				}	
+					else if(mannocombo >= 3){
+						mancombo = 0; 
+						mancbtmp = 0;
+						this.mancombos.kill();
+						this.manhits.kill();
+						this.printmancbex.kill();
+					}
+
+				if(foecbtmp != foecombo){
+					foecbtmp = foecombo; 
+					foenocombo = 0;
+				}
 					else{foenocombo+=0.015;}
-				if(foenocombo <3){this.foecombos.text = Math.floor(foecombo);this.foecombos.revive();this.foehits.revive();}		
-					else if(foenocombo >= 3){foecombo = 0;foecbtmp = 0;this.foecombos.kill();this.foehits.kill();}
 
+				if(foenocombo <3){
+					this.foecombos.text = Math.floor(foecombo);
+					this.foecombos.revive();
+					this.foehits.revive();
+					this.printfoecbex.revive();
+				}		
+					else if(foenocombo >= 3){
+						foecombo = 0;
+						foecbtmp = 0;
+						this.foecombos.kill();
+						this.foehits.kill();
+						this.printfoecbex.kill();
+					}
+
+				mancbex = mancombo * mancbexper;
+				foecbex = foecombo * foecbexper;
+				this.printmancbex.text = "+" + Math.floor(mancbex) + "%";
+				this.printfoecbex.text = "+" + Math.floor(foecbex) + "%";
 
 				//move p1 man
 				if (manleft.isDown){
@@ -385,6 +440,7 @@
    						this.man.animations.play('goright');
    						this.weaponm.fireAngle = 0;
    					}
+   					
    			    if (manjump.isDown) {this.man.body.velocity.y = -300;}	
    			    	else if(mandown.isDown){this.man.body.velocity.y = 500;}
 
@@ -466,30 +522,17 @@
 				foecombo += 1;
 			}
 
-			this.foehitweaponm = function(){
-				if(manatk>foedef){
-					foehp -= manatk/100 - foedef/100;
+			this.foehitweaponm = function(){	
+					foehp -= manatk/100*mancbex/100 - foedef/100;
 					foeplaymppunish = foemppunish;
 					mancombo += 1;
-				}
-				else{
-					foehp -= 0.1;
-					console.log("foe::block");
-					mancombo += 1;
-				}
+				
 			}
 
 			this.manhitweaponf = function(){
-				if(foeatk>mandef){
-					manhp -= foeatk/100 - mandef/100;
+					manhp -= foeatk/100*foecbex/100 - mandef/100;
 					manplaymppunish = manmppunish;
 					foecombo +=1;
-				}
-				else{
-					manhp -= 0.1;
-					console.log("man::block");
-					foecombo += 1;
-				}
 			}
 
 			this.foewin = function(){

@@ -43,6 +43,7 @@ function mansetstandard() {
 			manmpcure = 200;
 			manfloorpain = 0.2;
 			//mansskill = 0;
+			mancbexper = 1;
 			reinit();
 }
 
@@ -64,6 +65,7 @@ function mansetsniper() {
 			manmpcure = 250;
 			manfloorpain = 0.15;
 			//mansskill = 0;
+			mancbexper = 0.15;
 			reinit();
 }
 
@@ -84,6 +86,7 @@ function mansetmachinegun() {
 			manmpcure = 287;
 			manfloorpain = 0.35;
 			//mansskill = 0;
+			mancbexper = 1.23;
 			reinit();
 }
 
@@ -91,24 +94,24 @@ function mansetgatling() {
 			manlv = 1;
 			manexp = 0;
 			manstyle = "Gatling Gun";
-			manatk = 1;
+			manatk = 50;
 			manmaxhp = 600;
-			manhpcure = 450;
+			manhpcure = 300;
 			manmppunish = 444;		
 			manshootspd = 300;
 			manshootrate = 20;
 			manshootvariance = 16;
-			manmpuse = 0.1;
+			manmpuse = 0.28;
 			mandef = 111;
 			manmaxmp = 870;
 			manmpcure = 140;
 			manfloorpain = 0.7;
 			//mansskill = 0;
+			mancbexper = 1.11;
 			reinit();
 }
 
 //======================FOE===========================================================================================================================
-
 
 function foestyledecide(foestyle){
 	switch(foestyle){
@@ -155,6 +158,7 @@ function foesetstandard() {
 			foempcure = 200;
 			foefloorpain = 0.2;
 			//foesskill = 0;
+			foecbexper = 1;
 			reinit();
 }
 
@@ -176,6 +180,7 @@ function foesetsniper() {
 			foempcure = 250;
 			foefloorpain = 0.15;
 			//foesskill = 0;
+			foecbexper = 0.15;
 			reinit();
 }
 
@@ -196,6 +201,7 @@ function foesetmachinegun() {
 			foempcure = 287;
 			foefloorpain = 0.35;
 			//foesskill = 0;
+			foecbexper = 1.23;
 			reinit();
 }
 
@@ -203,24 +209,19 @@ function foesetgatling() {
 			foelv = 1;
 			foeexp = 0;
 			foestyle = "Gatling Gun";
-			foeatk = 1;
+			foeatk = 50;
 			foemaxhp = 600;
-			foehpcure = 450;
+			foehpcure = 300;
 			foemppunish = 444;		
 			foeshootspd = 300;
 			foeshootrate = 20;
 			foeshootvariance = 16;
-			foempuse = 0.1;
+			foempuse = 0.28;
 			foedef = 111;
 			foemaxmp = 870;
 			foempcure = 140;
 			foefloorpain = 0.7;
 			//foesskill = 0;
+			foecbexper = 1.11;
 			reinit();
 }
-
-//======================FOE===========================================================================================================================
-
-
-
-

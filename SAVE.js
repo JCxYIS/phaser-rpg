@@ -30,12 +30,12 @@ function manfout(){
 		manexatk + "JC%811%YIS" +    //6
 		manexhp + "JC%811%YIS" +    //7
 		manexhpcure + "JC%811%YIS" +   //8
-		manexmppunish + "JC%811%YIS" +  //9
+		manmppunish + "JC%811%YIS" +  //9
 		manexshootspd + "JC%811%YIS" +  //10
 		manexshootrate + "JC%811%YIS" +  //11
 		manexmpuse + "JC%811%YIS" +  //12
 		manexdef + "JC%811%YIS" +	   //13
-		manexmaxmp + "JC%811%YIS" +  //14
+		manexmp + "JC%811%YIS" +  //14
 		manexmpcure + "JC%811%YIS" + //15
 		mansskill + "JC%811%YIS" + //16
 		mannskill1 + "JC%811%YIS" + //17
@@ -56,12 +56,12 @@ function foefout(){
 		foeexatk + "JC%811%YIS" +    //6
 		foeexhp + "JC%811%YIS" +    //7
 		foeexhpcure + "JC%811%YIS" +   //8
-		foeexmppunish + "JC%811%YIS" +  //9
+		foemppunish + "JC%811%YIS" +  //9
 		foeexshootspd + "JC%811%YIS" +  //10
 		foeexshootrate + "JC%811%YIS" +  //11
 		foeexmpuse + "JC%811%YIS" +  //12
 		foeexdef + "JC%811%YIS" +	   //13
-		foeexmaxmp + "JC%811%YIS" +  //14
+		foeexmp + "JC%811%YIS" +  //14
 		foeexmpcure + "JC%811%YIS" + //15
 		foesskill + "JC%811%YIS" + //16
 		foenskill1 + "JC%811%YIS" + //17
