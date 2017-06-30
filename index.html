@@ -27,8 +27,8 @@
 
 <body style="font-family: 'Hall Fetica','Hall Fetica+'" id="body">
 	<script name="ver">//-----------------------------------------------------
-		var ver = '2.7';
-		var udt = "==NEWS== I'm working on a new game ^^\n0629: combo extra damage\n0623: HP & MP BAR\n0618: savedata system!!!\n0618: MPP = 150 if your mp = 0"
+		var ver = '2.71';
+		var udt = "==NEWS== I'm working on a new game ^^\n0630: Fixed a combo bug\n0629: combo extra damage\n0623: HP & MP BAR\n0618: savedata system!!!\n0618: MPP = 150 if your mp = 0"
 	</script>
 
 	<script name="init">//SAVE //man=p1,left   foe=p2,right
@@ -523,14 +523,14 @@
 			}
 
 			this.foehitweaponm = function(){	
-					foehp -= manatk/100*mancbex/100 - foedef/100;
+					foehp -= manatk/100*(mancbex+100)/100 - foedef/100;
 					foeplaymppunish = foemppunish;
 					mancombo += 1;
 				
 			}
 
 			this.manhitweaponf = function(){
-					manhp -= foeatk/100*foecbex/100 - mandef/100;
+					manhp -= foeatk/100*(foecbex+100)/100 - mandef/100;
 					manplaymppunish = manmppunish;
 					foecombo +=1;
 			}
